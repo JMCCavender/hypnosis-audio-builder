@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subliminal-808 | Music + Affirmation Mixer</title>
+    <meta name="description" content="Layer subliminal affirmations and binaural beats into any music. Real-time 808-style mixer with live preview and export.">
+    <meta name="keywords" content="subliminal, binaural beats, theta waves, affirmations, audio mixer, self-hypnosis">
+    <meta name="author" content="Hypnosis Audio Builder">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Subliminal-808 | Music + Affirmation Mixer">
+    <meta property="og:description" content="Layer subliminal affirmations and binaural beats into any music. Real-time mixer with export.">
+    <meta property="og:type" content="website">
+
+    <!-- PWA / Mobile -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a1a' width='100' height='100' rx='20'/><text y='65' x='50' text-anchor='middle' font-size='50'>🎛️</text></svg>">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🎛️</text></svg>">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+
+        .mixer {
+            background: linear-gradient(180deg, #2d2d2d 0%, #1f1f1f 100%);
+            border: 3px solid #3d3d3d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1250px;
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .mixer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3d3d3d;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ff6b35;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .logo-sub {
+            font-size: 0.7rem;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        .transport {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .transport-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid #444;
+            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .transport-btn:hover {
+            border-color: #ff6b35;
+        }
+
+        .transport-btn.play {
+            border-color: #4ade80;
+        }
+
+        .transport-btn.play:hover {
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+        }
+
+        .transport-btn.playing {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            border-color: #4ade80;
+            animation: pulse-glow 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(74, 222, 128, 0.7); }
+        }
+
+        /* Export button */
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #333 100%);
+            border: 2px solid #555;
+            border-radius: 8px;
+            color: #ccc;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .export-btn:hover {
+            border-color: #4ade80;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        .export-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .export-btn.exporting {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            border-color: #4ade80;
+            color: #fff;
+            animation: export-pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes export-pulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
+            50% { box-shadow: 0 0 25px rgba(74, 222, 128, 0.7); }
+        }
+
+        .export-icon {
+            font-size: 1.2rem;
+        }
+
+        .transport-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: #888;
+        }
+
+        .transport-btn.play svg {
+            fill: #4ade80;
+        }
+
+        .transport-btn.playing svg {
+            fill: #fff;
+        }
+
+        .led-display {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            color: #ff3333;
+            text-shadow: 0 0 8px #ff3333;
+            font-size: 1rem;
+            min-width: 220px;
+            text-align: center;
+        }
+
+        .model-badge {
+            background: #ff6b35;
+            color: #1a1a1a;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* File Input Section */
+        .file-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .file-box {
+            background: linear-gradient(180deg, #383838 0%, #2a2a2a 100%);
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .file-box.music {
+            border-color: #60a5fa;
+        }
+
+        .file-box.voice {
+            border-color: #fbbf24;
+        }
+
+        .file-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-icon {
+            font-size: 1.5rem;
+        }
+
+        .file-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .file-box.music .file-label { color: #60a5fa; }
+        .file-box.voice .file-label { color: #fbbf24; }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-btn {
+            padding: 10px 20px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #333 100%);
+            border: 2px solid #555;
+            border-radius: 6px;
+            color: #ccc;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .file-btn:hover {
+            border-color: #ff6b35;
+            color: #fff;
+        }
+
+        .file-name {
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #4ade80;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-name.empty {
+            color: #666;
+        }
+
+        /* Headphones notice */
+        .headphones-notice {
+            background: linear-gradient(90deg, #a78bfa22, transparent);
+            border-left: 3px solid #a78bfa;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.75rem;
+            color: #a78bfa;
+        }
+
+        .headphones-notice strong {
+            color: #c4b5fd;
+        }
+
+        .mixer-body {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .channels {
+            display: flex;
+            gap: 8px;
+        }
+
+        .channel-strip {
+            background: linear-gradient(180deg, #383838 0%, #2a2a2a 100%);
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            padding: 12px 10px;
+            width: 95px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .channel-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .channel-strip.music .channel-label { color: #60a5fa; }
+        .channel-strip.binaural .channel-label { color: #a78bfa; }
+        .channel-strip.subliminal .channel-label { color: #fbbf24; }
+        .channel-strip.energy .channel-label { color: #f472b6; }
+
+        .channel-strip.music { border-color: #60a5fa44; }
+        .channel-strip.binaural { border-color: #a78bfa44; }
+        .channel-strip.subliminal { border-color: #fbbf2444; }
+        .channel-strip.energy { border-color: #f472b644; }
+
+        /* VU Meter */
+        .vu-meter {
+            width: 20px;
+            height: 70px;
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .vu-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            transition: height 0.05s;
+        }
+
+        .channel-strip.music .vu-fill { background: linear-gradient(to top, #60a5fa 0%, #60a5fa 70%, #fbbf24 90%, #ff3333 100%); }
+        .channel-strip.binaural .vu-fill { background: linear-gradient(to top, #a78bfa 0%, #a78bfa 70%, #fbbf24 90%, #ff3333 100%); }
+        .channel-strip.subliminal .vu-fill { background: linear-gradient(to top, #fbbf24 0%, #fbbf24 70%, #fb923c 90%, #ff3333 100%); }
+        .channel-strip.energy .vu-fill { background: linear-gradient(to top, #f472b6 0%, #f472b6 70%, #fbbf24 90%, #ff3333 100%); }
+
+        /* Knob */
+        .knob-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .knob-label {
+            font-size: 0.55rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .knob {
+            width: 46px;
+            height: 46px;
+            background: linear-gradient(145deg, #4a4a4a, #2a2a2a);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow:
+                0 4px 8px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.1);
+            border: 2px solid #555;
+            user-select: none;
+        }
+
+        .knob-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3px;
+            height: 18px;
+            background: #ff6b35;
+            border-radius: 2px;
+            transform-origin: center bottom;
+            transform: translate(-50%, -100%) rotate(0deg);
+            box-shadow: 0 0 6px rgba(255, 107, 53, 0.6);
+            pointer-events: none;
+        }
+
+        .knob-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #444;
+            pointer-events: none;
+        }
+
+        .knob-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.65rem;
+            color: #ff6b35;
+            text-shadow: 0 0 4px rgba(255, 107, 53, 0.4);
+        }
+
+        .knob.small {
+            width: 38px;
+            height: 38px;
+        }
+
+        .knob.small .knob-indicator {
+            height: 14px;
+            width: 3px;
+        }
+
+        .knob.small .knob-center {
+            width: 8px;
+            height: 8px;
+        }
+
+        /* Mute button */
+        .mute-btn {
+            width: 34px;
+            height: 18px;
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.5rem;
+            font-weight: 700;
+            color: #666;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+        }
+
+        .mute-btn:hover {
+            border-color: #ff3333;
+        }
+
+        .mute-btn.active {
+            background: #ff3333;
+            color: #fff;
+            border-color: #ff3333;
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.5);
+        }
+
+        /* Zone indicator */
+        .zone-indicator {
+            font-size: 0.45rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 3px 6px;
+            border-radius: 3px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .zone-indicator.subliminal {
+            background: #fbbf2433;
+            color: #fbbf24;
+            border: 1px solid #fbbf2455;
+        }
+
+        .zone-indicator.quiet {
+            background: #60a5fa33;
+            color: #60a5fa;
+            border: 1px solid #60a5fa55;
+        }
+
+        .zone-indicator.audible {
+            background: #4ade8033;
+            color: #4ade80;
+            border: 1px solid #4ade8055;
+        }
+
+        .zone-indicator.loud {
+            background: #f4728633;
+            color: #f472b6;
+            border: 1px solid #f4728655;
+        }
+
+        /* Master Section */
+        .master-section {
+            background: linear-gradient(180deg, #3d3d3d 0%, #2d2d2d 100%);
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 160px;
+        }
+
+        .master-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ff6b35;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .master-knobs {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .freq-display {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: 'Courier New', monospace;
+            color: #a78bfa;
+            text-shadow: 0 0 6px rgba(167, 139, 250, 0.5);
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* Energy Section */
+        .energy-section {
+            background: linear-gradient(180deg, #3d3d3d 0%, #2d2d2d 100%);
+            border: 2px solid #f472b644;
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 150px;
+        }
+
+        .energy-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #f472b6;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        .energy-pads {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+        }
+
+        .energy-pad {
+            padding: 8px 6px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #333 100%);
+            border: 2px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: all 0.1s;
+            text-align: center;
+        }
+
+        .energy-pad:hover {
+            border-color: #f472b6;
+            color: #ccc;
+        }
+
+        .energy-pad.active {
+            background: linear-gradient(180deg, #f472b6 0%, #db2777 100%);
+            border-color: #f9a8d4;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(244, 114, 182, 0.4);
+        }
+
+        .energy-pad.off {
+            border-color: #444;
+        }
+
+        .energy-pad.off.active {
+            background: linear-gradient(180deg, #555 0%, #333 100%);
+            border-color: #666;
+            color: #aaa;
+            box-shadow: none;
+        }
+
+        .bpm-display {
+            font-family: 'Courier New', monospace;
+            font-size: 0.7rem;
+            color: #f472b6;
+            text-align: center;
+            text-shadow: 0 0 4px rgba(244, 114, 182, 0.4);
+        }
+
+        /* Visualizer */
+        .visualizer-section {
+            margin-top: 15px;
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .visualizer-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .visualizer-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            color: #4ade80;
+        }
+
+        .visualizer-canvas {
+            width: 100%;
+            height: 80px;
+            background: #0d0d0d;
+            border-radius: 4px;
+        }
+
+        /* Output */
+        .output-section {
+            margin-top: 15px;
+            background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
+            border: 2px solid #3d3d3d;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .output-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .copy-btn {
+            padding: 6px 16px;
+            background: linear-gradient(180deg, #ff6b35 0%, #e55a2b 100%);
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(180deg, #ff8c5a 0%, #ff6b35 100%);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+        }
+
+        .output-display {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #4ade80;
+            line-height: 1.6;
+            max-height: 80px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* Footer */
+        .mixer-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .footer-text {
+            font-size: 0.6rem;
+            color: #444;
+            letter-spacing: 1px;
+        }
+
+        .status-leds {
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-led {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .led-label {
+            font-size: 0.55rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+            border: 1px solid #444;
+        }
+
+        .led.on {
+            background: #4ade80;
+            box-shadow: 0 0 8px #4ade80;
+        }
+
+        .led.music-on {
+            background: #60a5fa;
+            box-shadow: 0 0 8px #60a5fa;
+        }
+
+        .led.voice-on {
+            background: #fbbf24;
+            box-shadow: 0 0 8px #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <div class="mixer">
+        <!-- Header -->
+        <div class="mixer-header">
+            <div class="logo">
+                <div>
+                    <div class="logo-text">SUBLIMINAL-808</div>
+                    <div class="logo-sub">MUSIC + AFFIRMATION MIXER</div>
+                </div>
+            </div>
+
+            <div class="transport">
+                <button class="transport-btn play" id="playBtn" title="Play/Stop">
+                    <svg id="playIcon" viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
+                    <svg id="stopIcon" style="display:none" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>
+                </button>
+                <button class="export-btn" id="exportBtn" title="Export Audio File">
+                    <span class="export-icon">💾</span>
+                    <span class="export-text">EXPORT</span>
+                </button>
+            </div>
+
+            <div class="led-display" id="ledDisplay">LOAD MUSIC & VOICE</div>
+            <div class="model-badge">LIVE</div>
+        </div>
+
+        <!-- Headphones Notice -->
+        <div class="headphones-notice">
+            <strong>🎧 Headphones Required</strong> — Binaural beats need stereo separation. Subliminal voice at -32dB is below conscious perception.
+        </div>
+
+        <!-- File Inputs -->
+        <div class="file-section">
+            <div class="file-box music">
+                <div class="file-header">
+                    <span class="file-icon">🎵</span>
+                    <span class="file-label">Music (Bach, Lo-fi, etc.)</span>
+                </div>
+                <div class="file-row">
+                    <input type="file" id="musicInput" class="file-input" accept="audio/*">
+                    <button class="file-btn" id="musicBtn">Choose Music</button>
+                    <span class="file-name empty" id="musicName">No file selected</span>
+                </div>
+            </div>
+            <div class="file-box voice">
+                <div class="file-header">
+                    <span class="file-icon">🎤</span>
+                    <span class="file-label">Voice (Affirmations)</span>
+                </div>
+                <div class="file-row">
+                    <input type="file" id="voiceInput" class="file-input" accept="audio/*">
+                    <button class="file-btn" id="voiceBtn">Choose Voice</button>
+                    <span class="file-name empty" id="voiceName">No file selected</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Body -->
+        <div class="mixer-body">
+            <!-- Channel Strips -->
+            <div class="channels">
+                <!-- Music Channel -->
+                <div class="channel-strip music">
+                    <span class="channel-label">Music</span>
+                    <div class="vu-meter">
+                        <div class="vu-fill" id="musicVU" style="height: 0%"></div>
+                    </div>
+                    <div class="knob-container">
+                        <span class="knob-label">Level</span>
+                        <div class="knob" id="musicKnob" data-param="musicLevel" data-min="-30" data-max="6">
+                            <div class="knob-indicator"></div>
+                            <div class="knob-center"></div>
+                        </div>
+                        <span class="knob-value" id="musicValue">0 dB</span>
+                    </div>
+                    <button class="mute-btn" id="musicMute">MUTE</button>
+                </div>
+
+                <!-- Binaural Channel -->
+                <div class="channel-strip binaural">
+                    <span class="channel-label">Binaural</span>
+                    <div class="vu-meter">
+                        <div class="vu-fill" id="binauralVU" style="height: 0%"></div>
+                    </div>
+                    <div class="knob-container">
+                        <span class="knob-label">Level</span>
+                        <div class="knob" id="binauralKnob" data-param="binauralLevel" data-min="-40" data-max="0">
+                            <div class="knob-indicator"></div>
+                            <div class="knob-center"></div>
+                        </div>
+                        <span class="knob-value" id="binauralValue">-18 dB</span>
+                    </div>
+                    <button class="mute-btn" id="binauralMute">MUTE</button>
+                </div>
+
+                <!-- Voice/Subliminal Channel -->
+                <div class="channel-strip subliminal">
+                    <span class="channel-label">Voice</span>
+                    <div class="vu-meter">
+                        <div class="vu-fill" id="subliminalVU" style="height: 0%"></div>
+                    </div>
+                    <div class="knob-container">
+                        <span class="knob-label">Level</span>
+                        <div class="knob" id="subliminalKnob" data-param="subliminalLevel" data-min="-50" data-max="6">
+                            <div class="knob-indicator"></div>
+                            <div class="knob-center"></div>
+                        </div>
+                        <span class="knob-value" id="subliminalValue">-32 dB</span>
+                    </div>
+                    <div class="zone-indicator" id="voiceZone">SUBLIMINAL</div>
+                    <button class="mute-btn" id="subliminalMute">MUTE</button>
+                </div>
+
+                <!-- Energy Channel -->
+                <div class="channel-strip energy">
+                    <span class="channel-label">Energy</span>
+                    <div class="vu-meter">
+                        <div class="vu-fill" id="energyVU" style="height: 0%"></div>
+                    </div>
+                    <div class="knob-container">
+                        <span class="knob-label">Level</span>
+                        <div class="knob" id="energyKnob" data-param="energyLevel" data-min="-50" data-max="0">
+                            <div class="knob-indicator"></div>
+                            <div class="knob-center"></div>
+                        </div>
+                        <span class="knob-value" id="energyValue">-25 dB</span>
+                    </div>
+                    <div class="zone-indicator" id="energyZone">SUBTLE</div>
+                    <button class="mute-btn" id="energyMute">MUTE</button>
+                </div>
+            </div>
+
+            <!-- Master Binaural Section -->
+            <div class="master-section">
+                <span class="master-label">Theta Waves</span>
+                <div class="master-knobs">
+                    <div class="knob-container">
+                        <span class="knob-label">Carrier</span>
+                        <div class="knob small" id="carrierKnob" data-param="carrierFreq" data-min="100" data-max="300">
+                            <div class="knob-indicator"></div>
+                            <div class="knob-center"></div>
+                        </div>
+                        <span class="knob-value" id="carrierValue">200 Hz</span>
+                    </div>
+                    <div class="knob-container">
+                        <span class="knob-label">Theta</span>
+                        <div class="knob small" id="thetaKnob" data-param="thetaFreq" data-min="4" data-max="8">
+                            <div class="knob-indicator"></div>
+                            <div class="knob-center"></div>
+                        </div>
+                        <span class="knob-value" id="thetaValue">6.0 Hz</span>
+                    </div>
+                </div>
+                <div class="freq-display" id="freqDisplay">L:200 R:206 Hz</div>
+            </div>
+
+            <!-- Energy Beats Section -->
+            <div class="energy-section">
+                <span class="energy-label">Energy Beats</span>
+                <div class="energy-pads">
+                    <button class="energy-pad off active" data-style="off">Off</button>
+                    <button class="energy-pad" data-style="focus">Focus</button>
+                    <button class="energy-pad" data-style="flow">Flow</button>
+                    <button class="energy-pad" data-style="drive">Drive</button>
+                </div>
+                <div class="bpm-display" id="bpmDisplay">—</div>
+            </div>
+        </div>
+
+        <!-- Visualizer -->
+        <div class="visualizer-section">
+            <div class="visualizer-header">
+                <span class="visualizer-title">Waveform</span>
+                <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+            </div>
+            <canvas class="visualizer-canvas" id="visualizer"></canvas>
+        </div>
+
+        <!-- Output -->
+        <div class="output-section">
+            <div class="output-header">
+                <span class="output-title">Export Command</span>
+                <button class="copy-btn" id="copyBtn">COPY</button>
+            </div>
+            <div class="output-display" id="outputDisplay"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mixer-footer">
+            <span class="footer-text">SUBLIMINAL MUSIC BUILDER - LIVE PREVIEW</span>
+            <div class="status-leds">
+                <div class="status-led">
+                    <span class="led-label">Music</span>
+                    <div class="led" id="musicLed"></div>
+                </div>
+                <div class="status-led">
+                    <span class="led-label">Voice</span>
+                    <div class="led" id="voiceLed"></div>
+                </div>
+                <div class="status-led">
+                    <span class="led-label">Audio</span>
+                    <div class="led" id="audioLed"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== AUDIO ENGINE =====
+        let audioCtx = null;
+        let isPlaying = false;
+
+        // Audio buffers
+        let musicBuffer = null;
+        let voiceBuffer = null;
+
+        // Audio nodes
+        let musicSource = null;
+        let musicGain = null;
+        let binauralLeft = null;
+        let binauralRight = null;
+        let binauralMerger = null;
+        let binauralGain = null;
+        let subliminalSource = null;
+        let subliminalGain = null;
+        let subliminalFilter = null;
+        let energyGain = null;
+        let energyInterval = null;
+        let masterGain = null;
+        let analyser = null;
+
+        // Playback tracking
+        let startTime = 0;
+        let pauseTime = 0;
+
+        // Energy beat patterns
+        const ENERGY_STYLES = {
+            off: { bpm: 0 },
+            focus: { bpm: 60 },
+            flow: { bpm: 90 },
+            drive: { bpm: 120 },
+            intense: { bpm: 140 }
+        };
+
+        // State
+        const state = {
+            musicLevel: 0,
+            binauralLevel: -18,
+            subliminalLevel: -32,
+            energyLevel: -25,
+            carrierFreq: 200,
+            thetaFreq: 6.0,
+            energyStyle: 'off',
+            musicMuted: false,
+            binauralMuted: false,
+            subliminalMuted: false,
+            energyMuted: false
+        };
+
+        // dB to linear gain
+        function dbToGain(db) {
+            return Math.pow(10, db / 20);
+        }
+
+        // Initialize audio context
+        function initAudio() {
+            if (audioCtx) return;
+
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            // Master gain
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0.9;
+            masterGain.connect(audioCtx.destination);
+
+            // Analyser
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+            masterGain.connect(analyser);
+
+            // Music gain
+            musicGain = audioCtx.createGain();
+            musicGain.connect(masterGain);
+
+            // Binaural gain and merger
+            binauralGain = audioCtx.createGain();
+            binauralGain.connect(masterGain);
+            binauralMerger = audioCtx.createChannelMerger(2);
+            binauralMerger.connect(binauralGain);
+
+            // Subliminal with low-pass filter
+            subliminalGain = audioCtx.createGain();
+            subliminalFilter = audioCtx.createBiquadFilter();
+            subliminalFilter.type = 'lowpass';
+            subliminalFilter.frequency.value = 4000;
+            subliminalGain.connect(subliminalFilter);
+            subliminalFilter.connect(masterGain);
+
+            // Energy gain
+            energyGain = audioCtx.createGain();
+            energyGain.connect(masterGain);
+
+            document.getElementById('audioLed').classList.add('on');
+            updateGains();
+        }
+
+        // Update gain values
+        function updateGains() {
+            if (!audioCtx) return;
+
+            const musicDb = state.musicMuted ? -100 : state.musicLevel;
+            const binauralDb = state.binauralMuted ? -100 : state.binauralLevel;
+            const subliminalDb = state.subliminalMuted ? -100 : state.subliminalLevel;
+            const energyDb = state.energyMuted || state.energyStyle === 'off' ? -100 : state.energyLevel;
+
+            musicGain.gain.setTargetAtTime(dbToGain(musicDb), audioCtx.currentTime, 0.02);
+            binauralGain.gain.setTargetAtTime(dbToGain(binauralDb), audioCtx.currentTime, 0.02);
+            subliminalGain.gain.setTargetAtTime(dbToGain(subliminalDb), audioCtx.currentTime, 0.02);
+            energyGain.gain.setTargetAtTime(dbToGain(energyDb), audioCtx.currentTime, 0.02);
+        }
+
+        // Update binaural frequencies
+        function updateBinauralFreq() {
+            if (!binauralLeft || !binauralRight) return;
+            binauralLeft.frequency.setTargetAtTime(state.carrierFreq, audioCtx.currentTime, 0.02);
+            binauralRight.frequency.setTargetAtTime(state.carrierFreq + state.thetaFreq, audioCtx.currentTime, 0.02);
+        }
+
+        // Play energy beat
+        function playEnergyBeat() {
+            if (!audioCtx || state.energyStyle === 'off') return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.value = 60;
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+
+            gain.gain.value = 0.5;
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+
+            osc.connect(gain);
+            gain.connect(energyGain);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        }
+
+        // Start energy beat loop
+        function startEnergyBeats() {
+            stopEnergyBeats();
+            if (state.energyStyle === 'off') return;
+
+            const bpm = ENERGY_STYLES[state.energyStyle].bpm;
+            const interval = 60000 / bpm;
+
+            playEnergyBeat();
+            energyInterval = setInterval(playEnergyBeat, interval);
+        }
+
+        // Stop energy beats
+        function stopEnergyBeats() {
+            if (energyInterval) {
+                clearInterval(energyInterval);
+                energyInterval = null;
+            }
+        }
+
+        // Start audio playback
+        function startAudio() {
+            if (!audioCtx) initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            startTime = audioCtx.currentTime;
+
+            // Start binaural oscillators
+            binauralLeft = audioCtx.createOscillator();
+            binauralRight = audioCtx.createOscillator();
+            binauralLeft.type = 'sine';
+            binauralRight.type = 'sine';
+            binauralLeft.frequency.value = state.carrierFreq;
+            binauralRight.frequency.value = state.carrierFreq + state.thetaFreq;
+
+            const leftGain = audioCtx.createGain();
+            const rightGain = audioCtx.createGain();
+            leftGain.gain.value = 0.5;
+            rightGain.gain.value = 0.5;
+
+            binauralLeft.connect(leftGain);
+            binauralRight.connect(rightGain);
+            leftGain.connect(binauralMerger, 0, 0);
+            rightGain.connect(binauralMerger, 0, 1);
+
+            binauralLeft.start();
+            binauralRight.start();
+
+            // Start music if loaded
+            if (musicBuffer) {
+                musicSource = audioCtx.createBufferSource();
+                musicSource.buffer = musicBuffer;
+                musicSource.loop = true;
+                musicSource.connect(musicGain);
+                musicSource.start();
+            }
+
+            // Start subliminal voice if loaded
+            if (voiceBuffer) {
+                subliminalSource = audioCtx.createBufferSource();
+                subliminalSource.buffer = voiceBuffer;
+                subliminalSource.loop = true;
+                subliminalSource.connect(subliminalGain);
+                subliminalSource.start();
+            }
+
+            // Start energy beats
+            startEnergyBeats();
+
+            isPlaying = true;
+            updateGains();
+            document.getElementById('playBtn').classList.add('playing');
+            document.getElementById('playIcon').style.display = 'none';
+            document.getElementById('stopIcon').style.display = 'block';
+            document.getElementById('ledDisplay').textContent = 'PLAYING';
+        }
+
+        // Stop audio
+        function stopAudio() {
+            if (binauralLeft) { binauralLeft.stop(); binauralLeft = null; }
+            if (binauralRight) { binauralRight.stop(); binauralRight = null; }
+            if (musicSource) { musicSource.stop(); musicSource = null; }
+            if (subliminalSource) { subliminalSource.stop(); subliminalSource = null; }
+            stopEnergyBeats();
+
+            isPlaying = false;
+            document.getElementById('playBtn').classList.remove('playing');
+            document.getElementById('playIcon').style.display = 'block';
+            document.getElementById('stopIcon').style.display = 'none';
+            document.getElementById('ledDisplay').textContent = musicBuffer && voiceBuffer ? 'READY' : 'LOAD FILES';
+        }
+
+        // Toggle play/stop
+        function togglePlay() {
+            if (isPlaying) {
+                stopAudio();
+            } else {
+                startAudio();
+            }
+        }
+
+        // Load audio file
+        async function loadAudioFile(file, type) {
+            if (!audioCtx) initAudio();
+
+            const nameEl = document.getElementById(type === 'music' ? 'musicName' : 'voiceName');
+            const ledEl = document.getElementById(type === 'music' ? 'musicLed' : 'voiceLed');
+            const display = document.getElementById('ledDisplay');
+
+            try {
+                display.textContent = 'LOADING...';
+                nameEl.textContent = `Loading ${file.name}...`;
+
+                console.log(`Loading ${type}: ${file.name} (${file.type}, ${(file.size/1024).toFixed(1)}KB)`);
+
+                const arrayBuffer = await file.arrayBuffer();
+                console.log(`File read, decoding audio...`);
+
+                const buffer = await audioCtx.decodeAudioData(arrayBuffer);
+                console.log(`Decoded: ${buffer.duration.toFixed(1)}s, ${buffer.numberOfChannels}ch, ${buffer.sampleRate}Hz`);
+
+                if (type === 'music') {
+                    musicBuffer = buffer;
+                    ledEl.classList.add('music-on');
+                } else {
+                    voiceBuffer = buffer;
+                    ledEl.classList.add('voice-on');
+                }
+
+                nameEl.textContent = `${file.name} (${buffer.duration.toFixed(1)}s)`;
+                nameEl.classList.remove('empty');
+
+                if (musicBuffer && voiceBuffer) {
+                    display.textContent = 'READY';
+                } else if (musicBuffer || voiceBuffer) {
+                    display.textContent = 'LOAD 2ND FILE';
+                }
+
+            } catch (err) {
+                console.error(`Failed to load ${type}:`, err);
+                nameEl.textContent = `ERROR: ${err.message}`;
+                nameEl.style.color = '#ef4444';
+                display.textContent = 'LOAD ERROR';
+                alert(`Failed to load ${file.name}:\n\n${err.message}\n\nTry converting to WAV format.`);
+                return;
+            }
+
+            // Restart if playing
+            if (isPlaying) {
+                stopAudio();
+                startAudio();
+            }
+
+            updateTimeDisplay();
+        }
+
+        // Update time display
+        function updateTimeDisplay() {
+            const duration = musicBuffer ? musicBuffer.duration : 0;
+            const mins = Math.floor(duration / 60);
+            const secs = Math.floor(duration % 60);
+            document.getElementById('timeDisplay').textContent = `0:00 / ${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // ===== KNOB INTERACTION =====
+        let activeKnob = null;
+        let startY = 0;
+        let startValue = 0;
+
+        function initKnobs() {
+            document.querySelectorAll('.knob').forEach(knob => {
+                knob.addEventListener('mousedown', startKnobDrag);
+                knob.addEventListener('touchstart', startKnobDrag, { passive: false });
+            });
+
+            document.addEventListener('mousemove', dragKnob);
+            document.addEventListener('touchmove', dragKnob, { passive: false });
+            document.addEventListener('mouseup', stopKnobDrag);
+            document.addEventListener('touchend', stopKnobDrag);
+        }
+
+        function startKnobDrag(e) {
+            e.preventDefault();
+            activeKnob = e.currentTarget;
+            startY = e.clientY || e.touches[0].clientY;
+            const param = activeKnob.dataset.param;
+            startValue = state[param];
+        }
+
+        function dragKnob(e) {
+            if (!activeKnob) return;
+            e.preventDefault();
+
+            const currentY = e.clientY || (e.touches && e.touches[0].clientY);
+            if (currentY === undefined) return;
+
+            const deltaY = startY - currentY;
+            const param = activeKnob.dataset.param;
+            const min = parseFloat(activeKnob.dataset.min);
+            const max = parseFloat(activeKnob.dataset.max);
+            const range = max - min;
+
+            const sensitivity = range / 150;
+            let newValue = startValue + (deltaY * sensitivity);
+            newValue = Math.max(min, Math.min(max, newValue));
+
+            if (param === 'thetaFreq') {
+                newValue = Math.round(newValue * 2) / 2;
+            } else if (param === 'carrierFreq') {
+                newValue = Math.round(newValue / 5) * 5;
+            } else {
+                newValue = Math.round(newValue);
+            }
+
+            state[param] = newValue;
+
+            if (param === 'carrierFreq' || param === 'thetaFreq') {
+                updateBinauralFreq();
+            } else {
+                updateGains();
+            }
+
+            updateUI();
+        }
+
+        function stopKnobDrag() {
+            activeKnob = null;
+        }
+
+        function valueToRotation(value, min, max) {
+            const normalized = (value - min) / (max - min);
+            return -135 + (normalized * 270);
+        }
+
+        // ===== UI UPDATE =====
+        function updateUI() {
+            // Knob rotations
+            setKnobRotation('musicKnob', state.musicLevel, -30, 6);
+            setKnobRotation('binauralKnob', state.binauralLevel, -40, 0);
+            setKnobRotation('subliminalKnob', state.subliminalLevel, -50, -15);
+            setKnobRotation('energyKnob', state.energyLevel, -40, -10);
+            setKnobRotation('carrierKnob', state.carrierFreq, 100, 300);
+            setKnobRotation('thetaKnob', state.thetaFreq, 4, 8);
+
+            // Values
+            document.getElementById('musicValue').textContent = `${state.musicLevel} dB`;
+            document.getElementById('binauralValue').textContent = `${state.binauralLevel} dB`;
+            document.getElementById('subliminalValue').textContent = `${state.subliminalLevel} dB`;
+            document.getElementById('energyValue').textContent = `${state.energyLevel} dB`;
+            document.getElementById('carrierValue').textContent = `${state.carrierFreq} Hz`;
+            document.getElementById('thetaValue').textContent = `${state.thetaFreq.toFixed(1)} Hz`;
+
+            // Voice zone indicator
+            const voiceZone = document.getElementById('voiceZone');
+            voiceZone.className = 'zone-indicator';
+            if (state.subliminalLevel <= -28) {
+                voiceZone.textContent = 'SUBLIMINAL';
+                voiceZone.classList.add('subliminal');
+            } else if (state.subliminalLevel <= -15) {
+                voiceZone.textContent = 'QUIET';
+                voiceZone.classList.add('quiet');
+            } else if (state.subliminalLevel <= -5) {
+                voiceZone.textContent = 'AUDIBLE';
+                voiceZone.classList.add('audible');
+            } else {
+                voiceZone.textContent = 'LOUD';
+                voiceZone.classList.add('loud');
+            }
+
+            // Energy zone indicator
+            const energyZone = document.getElementById('energyZone');
+            energyZone.className = 'zone-indicator';
+            if (state.energyLevel <= -30) {
+                energyZone.textContent = 'SUBTLE';
+                energyZone.classList.add('subliminal');
+            } else if (state.energyLevel <= -18) {
+                energyZone.textContent = 'SOFT';
+                energyZone.classList.add('quiet');
+            } else if (state.energyLevel <= -8) {
+                energyZone.textContent = 'PRESENT';
+                energyZone.classList.add('audible');
+            } else {
+                energyZone.textContent = 'DRIVING';
+                energyZone.classList.add('loud');
+            }
+
+            // Frequency display
+            const rightFreq = state.carrierFreq + state.thetaFreq;
+            document.getElementById('freqDisplay').textContent = `L:${state.carrierFreq} R:${rightFreq.toFixed(0)} Hz`;
+
+            // Mute buttons
+            document.getElementById('musicMute').classList.toggle('active', state.musicMuted);
+            document.getElementById('binauralMute').classList.toggle('active', state.binauralMuted);
+            document.getElementById('subliminalMute').classList.toggle('active', state.subliminalMuted);
+            document.getElementById('energyMute').classList.toggle('active', state.energyMuted);
+
+            // Energy pads
+            document.querySelectorAll('.energy-pad').forEach(pad => {
+                pad.classList.toggle('active', pad.dataset.style === state.energyStyle);
+            });
+
+            // BPM display
+            const bpm = ENERGY_STYLES[state.energyStyle].bpm;
+            document.getElementById('bpmDisplay').textContent = bpm > 0 ? `${bpm} BPM` : '—';
+
+            updatePrompt();
+        }
+
+        function setKnobRotation(id, value, min, max) {
+            const knob = document.getElementById(id);
+            const rotation = valueToRotation(value, min, max);
+            const indicator = knob.querySelector('.knob-indicator');
+            indicator.style.transform = `translate(-50%, -100%) rotate(${rotation}deg)`;
+        }
+
+        // Generate command prompt
+        function updatePrompt() {
+            let cmd = 'python subliminal_music_builder.py \\\n';
+            cmd += '  --music your-music.mp3 \\\n';
+            cmd += '  --voice your-affirmations.wav \\\n';
+
+            if (state.musicLevel !== 0) cmd += `  --music-level ${state.musicLevel} \\\n`;
+            if (state.subliminalLevel !== -32) cmd += `  --subliminal-level ${state.subliminalLevel} \\\n`;
+            if (state.binauralLevel !== -18) cmd += `  --binaural-level ${state.binauralLevel} \\\n`;
+            if (state.thetaFreq !== 6.0) cmd += `  --theta ${state.thetaFreq} \\\n`;
+            if (state.carrierFreq !== 200) cmd += `  --carrier ${state.carrierFreq} \\\n`;
+            if (state.energyStyle !== 'off') {
+                cmd += `  --energy ${state.energyStyle} \\\n`;
+                if (state.energyLevel !== -25) cmd += `  --energy-level ${state.energyLevel} \\\n`;
+            }
+
+            cmd += '  -o output.mp3';
+
+            document.getElementById('outputDisplay').textContent = cmd;
+        }
+
+        // Visualizer
+        function drawVisualizer() {
+            const canvas = document.getElementById('visualizer');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+            const height = canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            const displayWidth = canvas.offsetWidth;
+            const displayHeight = canvas.offsetHeight;
+
+            function draw() {
+                requestAnimationFrame(draw);
+
+                ctx.fillStyle = '#0d0d0d';
+                ctx.fillRect(0, 0, displayWidth, displayHeight);
+
+                if (!analyser || !isPlaying) {
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(0, displayHeight / 2);
+                    ctx.lineTo(displayWidth, displayHeight / 2);
+                    ctx.stroke();
+                    return;
+                }
+
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                analyser.getByteTimeDomainData(dataArray);
+
+                // Draw waveform
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#60a5fa';
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#60a5fa';
+                ctx.beginPath();
+
+                const sliceWidth = displayWidth / bufferLength;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    const v = dataArray[i] / 128.0;
+                    const y = (v * displayHeight) / 2;
+
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+
+                    x += sliceWidth;
+                }
+
+                ctx.lineTo(displayWidth, displayHeight / 2);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Update VU meters
+                const freqData = new Uint8Array(analyser.frequencyBinCount);
+                analyser.getByteFrequencyData(freqData);
+                const avg = freqData.reduce((a, b) => a + b) / freqData.length;
+                const level = (avg / 255) * 100;
+
+                if (!state.musicMuted && musicBuffer) {
+                    document.getElementById('musicVU').style.height = `${Math.min(100, level * 1.2)}%`;
+                }
+                if (!state.binauralMuted) {
+                    document.getElementById('binauralVU').style.height = `${level * 0.5}%`;
+                }
+                if (!state.subliminalMuted && voiceBuffer) {
+                    document.getElementById('subliminalVU').style.height = `${level * 0.3}%`;
+                }
+                if (!state.energyMuted && state.energyStyle !== 'off') {
+                    document.getElementById('energyVU').style.height = `${level * 0.4}%`;
+                }
+            }
+
+            draw();
+        }
+
+        // ===== EXPORT =====
+        let isExporting = false;
+
+        async function exportAudio() {
+            if (!musicBuffer && !voiceBuffer) {
+                alert('Please load at least one audio file first');
+                return;
+            }
+
+            if (isExporting) return;
+            isExporting = true;
+
+            const exportBtn = document.getElementById('exportBtn');
+            const exportText = exportBtn.querySelector('.export-text');
+            exportBtn.classList.add('exporting');
+            exportText.textContent = 'RENDERING...';
+            document.getElementById('ledDisplay').textContent = 'EXPORTING...';
+
+            try {
+                // Determine duration (use music length, or voice if no music)
+                const duration = musicBuffer ? musicBuffer.duration : voiceBuffer.duration;
+                const sampleRate = 44100;
+                const numSamples = Math.ceil(duration * sampleRate);
+
+                // Create offline context
+                const offlineCtx = new OfflineAudioContext(2, numSamples, sampleRate);
+
+                // Create gains
+                const offlineMaster = offlineCtx.createGain();
+                offlineMaster.gain.value = 0.9;
+                offlineMaster.connect(offlineCtx.destination);
+
+                // Music
+                if (musicBuffer) {
+                    const musicSrc = offlineCtx.createBufferSource();
+                    const musicG = offlineCtx.createGain();
+                    musicSrc.buffer = musicBuffer;
+                    musicG.gain.value = state.musicMuted ? 0 : dbToGain(state.musicLevel);
+                    musicSrc.connect(musicG);
+                    musicG.connect(offlineMaster);
+                    musicSrc.start(0);
+                }
+
+                // Binaural beats
+                if (!state.binauralMuted) {
+                    const binauralG = offlineCtx.createGain();
+                    binauralG.gain.value = dbToGain(state.binauralLevel);
+
+                    const merger = offlineCtx.createChannelMerger(2);
+                    merger.connect(binauralG);
+                    binauralG.connect(offlineMaster);
+
+                    const leftOsc = offlineCtx.createOscillator();
+                    const rightOsc = offlineCtx.createOscillator();
+                    const leftG = offlineCtx.createGain();
+                    const rightG = offlineCtx.createGain();
+
+                    leftOsc.frequency.value = state.carrierFreq;
+                    rightOsc.frequency.value = state.carrierFreq + state.thetaFreq;
+                    leftG.gain.value = 0.5;
+                    rightG.gain.value = 0.5;
+
+                    leftOsc.connect(leftG);
+                    rightOsc.connect(rightG);
+                    leftG.connect(merger, 0, 0);
+                    rightG.connect(merger, 0, 1);
+
+                    leftOsc.start(0);
+                    rightOsc.start(0);
+                }
+
+                // Voice/Subliminal
+                if (voiceBuffer && !state.subliminalMuted) {
+                    const voiceSrc = offlineCtx.createBufferSource();
+                    const voiceG = offlineCtx.createGain();
+                    const voiceFilter = offlineCtx.createBiquadFilter();
+
+                    voiceSrc.buffer = voiceBuffer;
+                    voiceSrc.loop = true;
+                    voiceG.gain.value = dbToGain(state.subliminalLevel);
+                    voiceFilter.type = 'lowpass';
+                    voiceFilter.frequency.value = state.subliminalLevel < -20 ? 4000 : 20000;
+
+                    voiceSrc.connect(voiceG);
+                    voiceG.connect(voiceFilter);
+                    voiceFilter.connect(offlineMaster);
+                    voiceSrc.start(0);
+                }
+
+                // Energy beats
+                if (state.energyStyle !== 'off' && !state.energyMuted) {
+                    const bpm = ENERGY_STYLES[state.energyStyle].bpm;
+                    const beatInterval = 60 / bpm;
+                    const energyG = offlineCtx.createGain();
+                    energyG.gain.value = dbToGain(state.energyLevel);
+                    energyG.connect(offlineMaster);
+
+                    for (let t = 0; t < duration; t += beatInterval) {
+                        const osc = offlineCtx.createOscillator();
+                        const envGain = offlineCtx.createGain();
+
+                        osc.frequency.setValueAtTime(60, t);
+                        osc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
+
+                        envGain.gain.setValueAtTime(0.5, t);
+                        envGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+
+                        osc.connect(envGain);
+                        envGain.connect(energyG);
+
+                        osc.start(t);
+                        osc.stop(t + 0.15);
+                    }
+                }
+
+                // Render
+                exportText.textContent = 'PROCESSING...';
+                const renderedBuffer = await offlineCtx.startRendering();
+
+                // Convert to WAV
+                exportText.textContent = 'SAVING...';
+                const wavBlob = bufferToWav(renderedBuffer);
+
+                // Download
+                const url = URL.createObjectURL(wavBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'subliminal-mix.wav';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                document.getElementById('ledDisplay').textContent = 'EXPORT COMPLETE';
+
+            } catch (err) {
+                console.error('Export error:', err);
+                alert('Export failed: ' + err.message);
+                document.getElementById('ledDisplay').textContent = 'EXPORT FAILED';
+            }
+
+            exportBtn.classList.remove('exporting');
+            exportText.textContent = 'EXPORT';
+            isExporting = false;
+
+            setTimeout(() => {
+                document.getElementById('ledDisplay').textContent = isPlaying ? 'PLAYING' : 'READY';
+            }, 2000);
+        }
+
+        // Convert AudioBuffer to WAV Blob
+        function bufferToWav(buffer) {
+            const numChannels = buffer.numberOfChannels;
+            const sampleRate = buffer.sampleRate;
+            const format = 1; // PCM
+            const bitDepth = 16;
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+
+            const dataLength = buffer.length * blockAlign;
+            const bufferLength = 44 + dataLength;
+            const arrayBuffer = new ArrayBuffer(bufferLength);
+            const view = new DataView(arrayBuffer);
+
+            // WAV header
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataLength, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataLength, true);
+
+            // Interleave channels
+            const channels = [];
+            for (let i = 0; i < numChannels; i++) {
+                channels.push(buffer.getChannelData(i));
+            }
+
+            let offset = 44;
+            for (let i = 0; i < buffer.length; i++) {
+                for (let ch = 0; ch < numChannels; ch++) {
+                    const sample = Math.max(-1, Math.min(1, channels[ch][i]));
+                    const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                    view.setInt16(offset, intSample, true);
+                    offset += 2;
+                }
+            }
+
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+
+        // ===== EVENT LISTENERS =====
+        document.getElementById('playBtn').addEventListener('click', togglePlay);
+        document.getElementById('exportBtn').addEventListener('click', exportAudio);
+
+        document.getElementById('musicBtn').addEventListener('click', () => {
+            document.getElementById('musicInput').click();
+        });
+
+        document.getElementById('voiceBtn').addEventListener('click', () => {
+            document.getElementById('voiceInput').click();
+        });
+
+        document.getElementById('musicInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) loadAudioFile(e.target.files[0], 'music');
+        });
+
+        document.getElementById('voiceInput').addEventListener('change', (e) => {
+            if (e.target.files[0]) loadAudioFile(e.target.files[0], 'voice');
+        });
+
+        document.querySelectorAll('.mute-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const channel = btn.id.replace('Mute', '') + 'Muted';
+                state[channel] = !state[channel];
+                updateGains();
+                updateUI();
+            });
+        });
+
+        document.querySelectorAll('.energy-pad').forEach(pad => {
+            pad.addEventListener('click', () => {
+                state.energyStyle = pad.dataset.style;
+                if (isPlaying) {
+                    stopEnergyBeats();
+                    startEnergyBeats();
+                }
+                updateGains();
+                updateUI();
+            });
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const text = document.getElementById('outputDisplay').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'COPIED!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'COPY';
+                    btn.classList.remove('copied');
+                }, 1500);
+            });
+        });
+
+        // Initialize
+        initKnobs();
+        updateUI();
+        drawVisualizer();
+    </script>
+</body>
+</html>

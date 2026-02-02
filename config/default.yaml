@@ -1,0 +1,49 @@
+# Hypnosis Audio Builder - Default Configuration
+# Copy this file and customize for your projects
+
+# Binaural Beat Settings
+# ----------------------
+# Theta frequency range: 4.0-8.0 Hz
+# Lower (4-5 Hz): Deep meditation, near-sleep
+# Middle (5-7 Hz): Deep relaxation, creativity
+# Upper (7-8 Hz): Light meditation, visualization
+theta_freq: 6.0
+
+# Carrier frequency for binaural beats
+# Lower values (100-200 Hz) are more subtle
+# Higher values (200-400 Hz) are more noticeable
+base_freq: 200.0
+
+# Timing Settings
+# ---------------
+# Intro: Ambient and binaural play before voice starts
+# Allows listener to relax before narration begins
+intro_silence: 3.0
+
+# Outro: Ambient and binaural continue after voice ends
+# Allows gradual transition out of hypnotic state
+outro_silence: 5.0
+
+# Volume Levels (in dB)
+# ---------------------
+# Voice: Reference level (0 dB) - main content
+# Binaural: Subtle background (-10 to -15 dB typical)
+# Ambient: Quiet atmosphere (-15 to -25 dB typical)
+# Subliminal: Near-inaudible (-30 to -40 dB typical)
+voice_volume: 0.0
+binaural_volume: -10.0
+ambient_volume: -20.0
+subliminal_volume: -35.0
+
+# Output Settings
+# ---------------
+output_format: mp3  # Options: mp3, wav, flac
+sample_rate: 44100  # Standard CD quality
+
+# Optional: Default ambient music file
+# Uncomment and set path to use a default ambient track
+# ambient_music: /path/to/your/ambient_music.mp3
+
+# Optional: Default subliminal audio file
+# Uncomment and set path to use default subliminals
+# subliminal: /path/to/your/subliminal_affirmations.mp3

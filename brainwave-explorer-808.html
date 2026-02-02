@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainwave-808 | Frequency Explorer</title>
+    <meta name="description" content="Interactive brainwave frequency explorer. Learn about Delta, Theta, Alpha, Beta, and Gamma waves for self-hypnosis and meditation.">
+    <meta name="keywords" content="brainwave, binaural beats, theta waves, alpha waves, beta waves, meditation, self-hypnosis">
+    <meta name="author" content="Hypnosis Audio Builder">
+
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="Brainwave-808 | Frequency Explorer">
+    <meta property="og:description" content="Interactive brainwave frequency explorer for self-hypnosis and meditation.">
+    <meta property="og:type" content="website">
+
+    <!-- PWA / Mobile -->
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🧠</text></svg>">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: auto;
+        }
+
+        .explorer {
+            background: linear-gradient(180deg, #2d2d2d 0%, #1f1f1f 100%);
+            border: 3px solid #3d3d3d;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 900px;
+            box-shadow:
+                0 10px 40px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        .explorer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3d3d3d;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ff6b35;
+            text-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+        }
+
+        .logo-sub {
+            font-size: 0.7rem;
+            color: #888;
+            letter-spacing: 1px;
+        }
+
+        .copy-btn {
+            padding: 12px 24px;
+            background: linear-gradient(180deg, #ff6b35 0%, #e55a2b 100%);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(180deg, #ff8c5a 0%, #ff6b35 100%);
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .copy-btn.copied {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+        }
+
+        /* Headphones notice */
+        .headphones-notice {
+            background: linear-gradient(90deg, #a78bfa22, transparent);
+            border-left: 3px solid #a78bfa;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.75rem;
+            color: #a78bfa;
+        }
+
+        .headphones-notice strong {
+            color: #c4b5fd;
+        }
+
+        /* Frequency Spectrum */
+        .spectrum-section {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .spectrum-label {
+            font-size: 0.65rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .spectrum-bar {
+            display: flex;
+            height: 60px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .spectrum-band {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            border-right: 1px solid #0a0a0a;
+        }
+
+        .spectrum-band:last-child {
+            border-right: none;
+        }
+
+        .spectrum-band:hover {
+            filter: brightness(1.2);
+            transform: scaleY(1.05);
+        }
+
+        .spectrum-band.selected {
+            transform: scaleY(1.1);
+            box-shadow: 0 0 20px currentColor;
+            z-index: 1;
+        }
+
+        .spectrum-band.delta {
+            background: linear-gradient(180deg, #8b5cf6 0%, #6d28d9 100%);
+            color: #c4b5fd;
+            flex: 0.7;
+        }
+
+        .spectrum-band.theta {
+            background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+            color: #ddd6fe;
+            flex: 0.8;
+        }
+
+        .spectrum-band.alpha {
+            background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+            color: #bfdbfe;
+            flex: 1;
+        }
+
+        .spectrum-band.beta {
+            background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+            color: #bbf7d0;
+            flex: 1.4;
+        }
+
+        .spectrum-band.gamma {
+            background: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+            color: #fef3c7;
+            flex: 1.4;
+        }
+
+        .band-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .band-range {
+            font-size: 0.6rem;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .spectrum-scale {
+            display: flex;
+            justify-content: space-between;
+            font-family: 'Courier New', monospace;
+            font-size: 0.6rem;
+            color: #666;
+            padding: 0 5px;
+        }
+
+        /* Selected Band Info */
+        .info-section {
+            background: linear-gradient(180deg, #383838 0%, #2a2a2a 100%);
+            border: 2px solid #4a4a4a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .info-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .info-band-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .info-band-name.delta { color: #a78bfa; }
+        .info-band-name.theta { color: #c4b5fd; }
+        .info-band-name.alpha { color: #60a5fa; }
+        .info-band-name.beta { color: #4ade80; }
+        .info-band-name.gamma { color: #fbbf24; }
+
+        .info-range {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        /* Knob for frequency selection */
+        .freq-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .knob-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .knob-label {
+            font-size: 0.55rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .knob {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #4a4a4a, #2a2a2a);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow:
+                0 4px 8px rgba(0,0,0,0.4),
+                inset 0 2px 4px rgba(255,255,255,0.1);
+            border: 2px solid #555;
+            user-select: none;
+        }
+
+        .knob-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3px;
+            height: 20px;
+            background: #ff6b35;
+            border-radius: 2px;
+            transform-origin: center bottom;
+            transform: translate(-50%, -100%) rotate(0deg);
+            box-shadow: 0 0 6px rgba(255, 107, 53, 0.6);
+            pointer-events: none;
+        }
+
+        .knob-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            background: #333;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid #444;
+            pointer-events: none;
+        }
+
+        .freq-display {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-shadow: 0 0 8px currentColor;
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .freq-display.delta { color: #a78bfa; }
+        .freq-display.theta { color: #c4b5fd; }
+        .freq-display.alpha { color: #60a5fa; }
+        .freq-display.beta { color: #4ade80; }
+        .freq-display.gamma { color: #fbbf24; }
+
+        /* Info Content */
+        .info-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-block {
+            background: #2a2a2a;
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        .info-block-title {
+            font-size: 0.65rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .info-block-content {
+            font-size: 0.85rem;
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        .info-block-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-block-content li {
+            padding: 4px 0;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .info-block-content li::before {
+            content: ">";
+            position: absolute;
+            left: 0;
+            color: #ff6b35;
+            font-weight: bold;
+        }
+
+        /* Session Presets */
+        .presets-section {
+            margin-bottom: 20px;
+        }
+
+        .presets-label {
+            font-size: 0.65rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .presets-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preset-btn {
+            padding: 10px 18px;
+            background: linear-gradient(180deg, #4a4a4a 0%, #333 100%);
+            border: 2px solid #555;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.15s;
+        }
+
+        .preset-btn:hover {
+            border-color: #ff6b35;
+            color: #ccc;
+        }
+
+        .preset-btn.active {
+            background: linear-gradient(180deg, #ff6b35 0%, #e55a2b 100%);
+            border-color: #ff8c5a;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(255, 107, 53, 0.4);
+        }
+
+        .preset-btn.theta-preset { border-left: 3px solid #a78bfa; }
+        .preset-btn.alpha-preset { border-left: 3px solid #60a5fa; }
+        .preset-btn.beta-preset { border-left: 3px solid #4ade80; }
+
+        /* Command Output */
+        .output-section {
+            background: linear-gradient(180deg, #2a2a2a 0%, #222 100%);
+            border: 2px solid #3d3d3d;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .output-title {
+            font-size: 0.7rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .output-display {
+            background: #0a0a0a;
+            border: 2px solid #333;
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            color: #4ade80;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        /* Footer */
+        .explorer-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #333;
+        }
+
+        .footer-text {
+            font-size: 0.6rem;
+            color: #444;
+            letter-spacing: 1px;
+        }
+
+        .status-leds {
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-led {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .led-label {
+            font-size: 0.55rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #333;
+            border: 1px solid #444;
+        }
+
+        .led.on {
+            background: #4ade80;
+            box-shadow: 0 0 8px #4ade80;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .info-content {
+                grid-template-columns: 1fr;
+            }
+
+            .explorer-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .presets-grid {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="explorer">
+        <!-- Header -->
+        <div class="explorer-header">
+            <div class="logo">
+                <div>
+                    <div class="logo-text">BRAINWAVE-808</div>
+                    <div class="logo-sub">FREQUENCY EXPLORER</div>
+                </div>
+            </div>
+            <button class="copy-btn" id="copyBtn">COPY COMMAND</button>
+        </div>
+
+        <!-- Headphones Notice -->
+        <div class="headphones-notice">
+            <strong>🎧 Headphones Required</strong> — Binaural beats require stereo separation to create the brainwave entrainment effect. Each ear receives a slightly different frequency.
+        </div>
+
+        <!-- Frequency Spectrum -->
+        <div class="spectrum-section">
+            <div class="spectrum-label">Brainwave Frequency Spectrum (0.5 - 40 Hz)</div>
+            <div class="spectrum-bar">
+                <div class="spectrum-band delta" data-band="delta" title="Delta: Deep sleep, healing">
+                    <span class="band-name">Delta</span>
+                    <span class="band-range">0.5-4 Hz</span>
+                </div>
+                <div class="spectrum-band theta" data-band="theta" title="Theta: Meditation, subconscious">
+                    <span class="band-name">Theta</span>
+                    <span class="band-range">4-8 Hz</span>
+                </div>
+                <div class="spectrum-band alpha" data-band="alpha" title="Alpha: Relaxed focus">
+                    <span class="band-name">Alpha</span>
+                    <span class="band-range">8-13 Hz</span>
+                </div>
+                <div class="spectrum-band beta" data-band="beta" title="Beta: Active thinking">
+                    <span class="band-name">Beta</span>
+                    <span class="band-range">13-30 Hz</span>
+                </div>
+                <div class="spectrum-band gamma" data-band="gamma" title="Gamma: Peak awareness">
+                    <span class="band-name">Gamma</span>
+                    <span class="band-range">30-100 Hz</span>
+                </div>
+            </div>
+            <div class="spectrum-scale">
+                <span>0.5 Hz</span>
+                <span>4 Hz</span>
+                <span>8 Hz</span>
+                <span>13 Hz</span>
+                <span>30 Hz</span>
+                <span>40+ Hz</span>
+            </div>
+        </div>
+
+        <!-- Selected Band Info -->
+        <div class="info-section">
+            <div class="info-header">
+                <div class="info-title">
+                    <span class="info-band-name theta" id="infoName">THETA</span>
+                    <span class="info-range" id="infoRange">(4-8 Hz)</span>
+                </div>
+                <div class="freq-control">
+                    <div class="knob-container">
+                        <span class="knob-label">Frequency</span>
+                        <div class="knob" id="freqKnob">
+                            <div class="knob-indicator"></div>
+                            <div class="knob-center"></div>
+                        </div>
+                    </div>
+                    <div class="freq-display theta" id="freqDisplay">6.0 Hz</div>
+                </div>
+            </div>
+
+            <div class="info-content">
+                <div class="info-block">
+                    <div class="info-block-title">Mental State</div>
+                    <div class="info-block-content" id="infoState">
+                        Deep meditation, creativity, subconscious access. The gateway to programming beliefs and habits.
+                    </div>
+                </div>
+                <div class="info-block">
+                    <div class="info-block-title">Best For</div>
+                    <div class="info-block-content" id="infoUses">
+                        <ul>
+                            <li>Self-hypnosis & affirmations</li>
+                            <li>Deep meditation</li>
+                            <li>Visualization</li>
+                            <li>Creativity & insight</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Presets -->
+        <div class="presets-section">
+            <div class="presets-label">Session Presets</div>
+            <div class="presets-grid">
+                <button class="preset-btn theta-preset" data-preset="sleep" data-freq="4.0">Sleep (4 Hz)</button>
+                <button class="preset-btn theta-preset" data-preset="night" data-freq="5.5">Night (5.5 Hz)</button>
+                <button class="preset-btn theta-preset active" data-preset="morning" data-freq="6.0">Morning (6 Hz)</button>
+                <button class="preset-btn theta-preset" data-preset="standard" data-freq="6.0">Standard (6 Hz)</button>
+                <button class="preset-btn alpha-preset" data-preset="focus" data-freq="10.0">Focus (10 Hz)</button>
+                <button class="preset-btn beta-preset" data-preset="active" data-freq="15.0">Active (15 Hz)</button>
+            </div>
+        </div>
+
+        <!-- Command Output -->
+        <div class="output-section">
+            <div class="output-header">
+                <span class="output-title">CLI Command</span>
+            </div>
+            <div class="output-display" id="outputDisplay">python hypnosis_audio_builder.py \
+  --voice your-script.wav \
+  --session morning \
+  --subliminal-from-voice \
+  -o output.mp3</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="explorer-footer">
+            <span class="footer-text">HYPNOSIS AUDIO BUILDER - FREQUENCY EXPLORER</span>
+            <div class="status-leds">
+                <div class="status-led">
+                    <span class="led-label">Ready</span>
+                    <div class="led on"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Band data
+        const BANDS = {
+            delta: {
+                name: 'DELTA',
+                range: '0.5-4 Hz',
+                min: 0.5,
+                max: 4,
+                default: 2,
+                state: 'Deep sleep, unconscious healing, restoration. The slowest brainwaves associated with dreamless sleep and cellular regeneration.',
+                uses: [
+                    'Deep sleep induction',
+                    'Physical healing',
+                    'Immune system boost',
+                    'Anti-aging (HGH release)'
+                ],
+                presets: [],
+                color: '#a78bfa'
+            },
+            theta: {
+                name: 'THETA',
+                range: '4-8 Hz',
+                min: 4,
+                max: 8,
+                default: 6,
+                state: 'Deep meditation, creativity, subconscious access. The gateway to programming beliefs, habits, and accessing intuition.',
+                uses: [
+                    'Self-hypnosis & affirmations',
+                    'Deep meditation',
+                    'Visualization',
+                    'Creativity & insight'
+                ],
+                presets: ['sleep', 'night', 'morning', 'standard', 'subliminal'],
+                color: '#c4b5fd'
+            },
+            alpha: {
+                name: 'ALPHA',
+                range: '8-13 Hz',
+                min: 8,
+                max: 13,
+                default: 10,
+                state: 'Relaxed awareness, calm focus, light meditation. The bridge between conscious thinking and subconscious mind.',
+                uses: [
+                    'Relaxed focus & learning',
+                    'Stress reduction',
+                    'Light meditation',
+                    'Creative flow state'
+                ],
+                presets: ['focus'],
+                color: '#60a5fa'
+            },
+            beta: {
+                name: 'BETA',
+                range: '13-30 Hz',
+                min: 13,
+                max: 30,
+                default: 15,
+                state: 'Active thinking, concentration, alertness. The default waking state for problem-solving and focused work.',
+                uses: [
+                    'Concentration & focus',
+                    'Active problem-solving',
+                    'Mental clarity',
+                    'Energy & motivation'
+                ],
+                presets: ['active'],
+                color: '#4ade80'
+            },
+            gamma: {
+                name: 'GAMMA',
+                range: '30-100 Hz',
+                min: 30,
+                max: 100,
+                default: 40,
+                state: 'Peak awareness, insight, information processing. Associated with higher cognitive functions and moments of insight.',
+                uses: [
+                    'Peak performance',
+                    'Information processing',
+                    'Memory consolidation',
+                    'Heightened perception'
+                ],
+                presets: [],
+                color: '#fbbf24'
+            }
+        };
+
+        const PRESETS = {
+            sleep: { freq: 4.0, band: 'theta', desc: 'Deep sleep programming' },
+            night: { freq: 5.5, band: 'theta', desc: 'Evening relaxation' },
+            morning: { freq: 6.0, band: 'theta', desc: 'Energizing start' },
+            standard: { freq: 6.0, band: 'theta', desc: 'Balanced session' },
+            subliminal: { freq: 4.0, band: 'theta', desc: 'Subliminal only' },
+            focus: { freq: 10.0, band: 'alpha', desc: 'Relaxed focus' },
+            active: { freq: 15.0, band: 'beta', desc: 'Active concentration' }
+        };
+
+        // State
+        let selectedBand = 'theta';
+        let selectedFreq = 6.0;
+        let selectedPreset = 'morning';
+
+        // Knob drag state
+        let isDragging = false;
+        let startY = 0;
+        let startFreq = 0;
+
+        // DOM elements
+        const freqKnob = document.getElementById('freqKnob');
+        const freqDisplay = document.getElementById('freqDisplay');
+        const infoName = document.getElementById('infoName');
+        const infoRange = document.getElementById('infoRange');
+        const infoState = document.getElementById('infoState');
+        const infoUses = document.getElementById('infoUses');
+        const outputDisplay = document.getElementById('outputDisplay');
+        const copyBtn = document.getElementById('copyBtn');
+
+        // Initialize
+        function init() {
+            // Band click handlers
+            document.querySelectorAll('.spectrum-band').forEach(band => {
+                band.addEventListener('click', () => selectBand(band.dataset.band));
+            });
+
+            // Preset click handlers
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectPreset(btn.dataset.preset));
+            });
+
+            // Knob drag handlers
+            freqKnob.addEventListener('mousedown', startDrag);
+            freqKnob.addEventListener('touchstart', startDrag, { passive: false });
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('mouseup', stopDrag);
+            document.addEventListener('touchend', stopDrag);
+
+            // Copy button
+            copyBtn.addEventListener('click', copyCommand);
+
+            // Initial update
+            updateUI();
+        }
+
+        function selectBand(band) {
+            selectedBand = band;
+            const bandData = BANDS[band];
+            selectedFreq = bandData.default;
+
+            // Clear preset selection when manually selecting band
+            selectedPreset = null;
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+
+            updateUI();
+        }
+
+        function selectPreset(preset) {
+            selectedPreset = preset;
+            const presetData = PRESETS[preset];
+            selectedBand = presetData.band;
+            selectedFreq = presetData.freq;
+
+            // Update preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.preset === preset);
+            });
+
+            updateUI();
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            isDragging = true;
+            startY = e.clientY || e.touches[0].clientY;
+            startFreq = selectedFreq;
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+
+            const currentY = e.clientY || (e.touches && e.touches[0].clientY);
+            if (currentY === undefined) return;
+
+            const deltaY = startY - currentY;
+            const bandData = BANDS[selectedBand];
+            const range = bandData.max - bandData.min;
+            const sensitivity = range / 100;
+
+            let newFreq = startFreq + (deltaY * sensitivity);
+            newFreq = Math.max(bandData.min, Math.min(bandData.max, newFreq));
+            newFreq = Math.round(newFreq * 2) / 2; // Round to 0.5
+
+            // Check if frequency moves to a different band
+            const newBand = getBandForFreq(newFreq);
+            if (newBand !== selectedBand) {
+                selectedBand = newBand;
+            }
+
+            selectedFreq = newFreq;
+
+            // Clear preset when manually adjusting
+            if (selectedPreset) {
+                selectedPreset = null;
+                document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            }
+
+            updateUI();
+        }
+
+        function stopDrag() {
+            isDragging = false;
+        }
+
+        function getBandForFreq(freq) {
+            if (freq < 4) return 'delta';
+            if (freq < 8) return 'theta';
+            if (freq < 13) return 'alpha';
+            if (freq < 30) return 'beta';
+            return 'gamma';
+        }
+
+        function updateUI() {
+            const bandData = BANDS[selectedBand];
+
+            // Update spectrum band highlighting
+            document.querySelectorAll('.spectrum-band').forEach(band => {
+                band.classList.toggle('selected', band.dataset.band === selectedBand);
+            });
+
+            // Update info section
+            infoName.textContent = bandData.name;
+            infoName.className = 'info-band-name ' + selectedBand;
+            infoRange.textContent = `(${bandData.range})`;
+            infoState.textContent = bandData.state;
+
+            // Update uses list
+            infoUses.innerHTML = '<ul>' + bandData.uses.map(use => `<li>${use}</li>`).join('') + '</ul>';
+
+            // Update frequency display
+            freqDisplay.textContent = `${selectedFreq.toFixed(1)} Hz`;
+            freqDisplay.className = 'freq-display ' + selectedBand;
+
+            // Update knob rotation
+            const normalized = (selectedFreq - bandData.min) / (bandData.max - bandData.min);
+            const rotation = -135 + (normalized * 270);
+            freqKnob.querySelector('.knob-indicator').style.transform =
+                `translate(-50%, -100%) rotate(${rotation}deg)`;
+
+            // Update command output
+            updateCommand();
+        }
+
+        function updateCommand() {
+            let cmd = 'python hypnosis_audio_builder.py \\\n';
+            cmd += '  --voice your-script.wav \\\n';
+
+            if (selectedPreset) {
+                cmd += `  --session ${selectedPreset} \\\n`;
+            } else {
+                cmd += `  --theta-freq ${selectedFreq.toFixed(1)} \\\n`;
+            }
+
+            cmd += '  --subliminal-from-voice \\\n';
+            cmd += '  -o output.mp3';
+
+            outputDisplay.textContent = cmd;
+        }
+
+        function copyCommand() {
+            const text = outputDisplay.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                copyBtn.textContent = 'COPIED!';
+                copyBtn.classList.add('copied');
+                setTimeout(() => {
+                    copyBtn.textContent = 'COPY COMMAND';
+                    copyBtn.classList.remove('copied');
+                }, 1500);
+            });
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

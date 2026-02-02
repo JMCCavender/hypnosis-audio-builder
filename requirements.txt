@@ -1,0 +1,30 @@
+# Hypnosis Audio Builder - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core audio processing
+pydub>=0.25.1        # Audio manipulation and mixing
+numpy>=1.24.0        # Numerical operations for sine wave synthesis
+
+# Configuration and CLI
+pyyaml>=6.0          # YAML configuration file support
+
+# Optional: For MP3 support, you also need ffmpeg installed:
+# macOS:   brew install ffmpeg
+# Ubuntu:  sudo apt install ffmpeg
+# Windows: Download from https://ffmpeg.org/download.html
+
+# Optional: For AI music generation (future enhancement)
+# Uncomment these if you want to experiment with AI-generated ambient music
+# Note: These require significant disk space and GPU for best performance
+
+# Meta AudioCraft (MusicGen)
+# audiocraft>=1.0.0
+
+# Or use transformers for MusicGen
+# transformers>=4.35.0
+# torch>=2.0.0
+# torchaudio>=2.0.0
+
+# Optional: Text-to-speech for subliminal generation
+# pyttsx3>=2.90       # Offline TTS (cross-platform)
+# gTTS>=2.3.0         # Google TTS (requires internet)

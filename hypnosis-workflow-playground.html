@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hypnosis Audio Builder - Workflow Explorer</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0a0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            grid-template-rows: 1fr auto;
+            min-height: 100vh;
+            gap: 1px;
+            background: #1a1a2e;
+        }
+
+        .controls {
+            background: #12121a;
+            padding: 20px;
+            overflow-y: auto;
+            border-right: 1px solid #2a2a4a;
+        }
+
+        .preview {
+            background: #0d0d14;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .prompt-area {
+            grid-column: 1 / -1;
+            background: #12121a;
+            border-top: 1px solid #2a2a4a;
+            padding: 16px 24px;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            color: #a78bfa;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 0.85rem;
+            color: #7c7c9a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 20px 0 12px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2a2a4a;
+        }
+
+        h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .control-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            color: #9090a8;
+            margin-bottom: 6px;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 6px;
+            color: #e0e0e0;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #a78bfa;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 6px;
+            padding: 0;
+            border-radius: 3px;
+            background: #2a2a4a;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #a78bfa;
+            cursor: pointer;
+        }
+
+        .range-value {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #6b6b8a;
+            margin-top: 4px;
+        }
+
+        .range-value span:last-child {
+            color: #a78bfa;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+        }
+
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 6px 12px;
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 16px;
+            color: #9090a8;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: #a78bfa;
+            color: #e0e0e0;
+        }
+
+        .preset-btn.active {
+            background: #a78bfa;
+            border-color: #a78bfa;
+            color: #0a0a0f;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #a78bfa;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #e0e0e0;
+        }
+
+        /* Preview styles */
+        .workflow-diagram {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .stage {
+            background: #16161f;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .stage::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -16px;
+            width: 2px;
+            height: 16px;
+            background: linear-gradient(to bottom, #a78bfa, transparent);
+        }
+
+        .stage:last-of-type::after {
+            display: none;
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stage-number {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #a78bfa, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .stage-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        .stage-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stage-visual {
+            background: #0d0d14;
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 100px;
+        }
+
+        .stage-info {
+            font-size: 0.85rem;
+            color: #9090a8;
+        }
+
+        .stage-info strong {
+            color: #e0e0e0;
+        }
+
+        .param-list {
+            list-style: none;
+            margin-top: 8px;
+        }
+
+        .param-list li {
+            padding: 4px 0;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.75rem;
+        }
+
+        .param-list .key {
+            color: #7c7c9a;
+        }
+
+        .param-list .value {
+            color: #a78bfa;
+        }
+
+        /* Waveform visualizations */
+        .waveform {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .waveform-bar {
+            width: 3px;
+            background: linear-gradient(to top, #7c3aed, #a78bfa);
+            border-radius: 2px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1); }
+        }
+
+        .binaural-viz {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .ear-channel {
+            text-align: center;
+        }
+
+        .ear-label {
+            font-size: 0.7rem;
+            color: #7c7c9a;
+            margin-bottom: 4px;
+        }
+
+        .frequency-display {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 1.2rem;
+            color: #a78bfa;
+        }
+
+        .beat-indicator {
+            font-size: 0.7rem;
+            color: #10b981;
+            margin-top: 8px;
+        }
+
+        /* Mix meter */
+        .mix-meter {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .track-meter {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .track-name {
+            width: 70px;
+            font-size: 0.7rem;
+            color: #7c7c9a;
+            text-align: right;
+        }
+
+        .meter-bar {
+            flex: 1;
+            height: 12px;
+            background: #1a1a2e;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.3s;
+        }
+
+        .meter-value {
+            width: 45px;
+            font-size: 0.7rem;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            color: #7c7c9a;
+        }
+
+        .voice-fill { background: linear-gradient(90deg, #10b981, #34d399); }
+        .binaural-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+        .ambient-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .subliminal-fill { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+        /* Timeline */
+        .timeline {
+            background: #0d0d14;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #7c7c9a;
+            margin-bottom: 8px;
+        }
+
+        .timeline-bar {
+            height: 40px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-segment {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.7);
+            border-radius: 4px;
+        }
+
+        .segment-intro {
+            background: rgba(167, 139, 250, 0.3);
+            border-left: 2px solid #a78bfa;
+        }
+
+        .segment-voice {
+            background: rgba(16, 185, 129, 0.3);
+            border-left: 2px solid #10b981;
+        }
+
+        .segment-outro {
+            background: rgba(59, 130, 246, 0.3);
+            border-left: 2px solid #3b82f6;
+        }
+
+        .timeline-tracks {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .timeline-track {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timeline-track-name {
+            width: 70px;
+            font-size: 0.65rem;
+            color: #7c7c9a;
+            text-align: right;
+        }
+
+        .timeline-track-bar {
+            flex: 1;
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        .track-binaural { background: linear-gradient(90deg, transparent, #7c3aed 2%, #7c3aed 98%, transparent); }
+        .track-ambient { background: linear-gradient(90deg, transparent, #3b82f6 2%, #3b82f6 98%, transparent); }
+        .track-subliminal { background: linear-gradient(90deg, transparent, #f59e0b 2%, #f59e0b 98%, transparent); }
+        .track-voice {
+            background: transparent;
+            position: relative;
+        }
+        .track-voice-inner {
+            position: absolute;
+            height: 100%;
+            background: #10b981;
+            border-radius: 4px;
+        }
+
+        /* Prompt output */
+        .prompt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .prompt-header h3 {
+            font-size: 0.8rem;
+            color: #7c7c9a;
+            font-weight: 500;
+        }
+
+        .copy-btn {
+            padding: 6px 14px;
+            background: #a78bfa;
+            border: none;
+            border-radius: 6px;
+            color: #0a0a0f;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #c4b5fd;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .prompt-output {
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 0.85rem;
+            color: #e0e0e0;
+            line-height: 1.6;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .prompt-output code {
+            background: #0d0d14;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #a78bfa;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                border-right: none;
+                border-bottom: 1px solid #2a2a4a;
+            }
+
+            .stage-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <h1>Hypnosis Audio Builder</h1>
+
+            <h2>Session Preset</h2>
+            <div class="presets" id="presets">
+                <button class="preset-btn active" data-preset="standard">Standard</button>
+                <button class="preset-btn" data-preset="morning">Morning</button>
+                <button class="preset-btn" data-preset="night">Night</button>
+                <button class="preset-btn" data-preset="sleep">Sleep</button>
+                <button class="preset-btn" data-preset="subliminal">Subliminal Only</button>
+            </div>
+
+            <h2>Binaural Beats</h2>
+            <div class="control-group">
+                <label>Carrier Frequency</label>
+                <input type="range" id="baseFreq" min="100" max="300" value="200" step="10">
+                <div class="range-value">
+                    <span>100 Hz</span>
+                    <span id="baseFreqValue">200 Hz</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Theta Frequency (Brainwave Target)</label>
+                <input type="range" id="thetaFreq" min="4" max="8" value="6" step="0.5">
+                <div class="range-value">
+                    <span>4 Hz (Deep)</span>
+                    <span id="thetaFreqValue">6.0 Hz</span>
+                </div>
+            </div>
+
+            <h2>Mix Levels (dB)</h2>
+            <div class="control-group">
+                <label>Voice</label>
+                <input type="range" id="voiceLevel" min="-20" max="3" value="0" step="1">
+                <div class="range-value">
+                    <span>-20 dB</span>
+                    <span id="voiceLevelValue">0 dB</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Binaural Beats</label>
+                <input type="range" id="binauralLevel" min="-30" max="0" value="-10" step="1">
+                <div class="range-value">
+                    <span>-30 dB</span>
+                    <span id="binauralLevelValue">-10 dB</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Ambient Music</label>
+                <input type="range" id="ambientLevel" min="-40" max="-5" value="-20" step="1">
+                <div class="range-value">
+                    <span>-40 dB</span>
+                    <span id="ambientLevelValue">-20 dB</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Subliminal</label>
+                <input type="range" id="subliminalLevel" min="-50" max="-25" value="-35" step="1">
+                <div class="range-value">
+                    <span>-50 dB</span>
+                    <span id="subliminalLevelValue">-35 dB</span>
+                </div>
+            </div>
+
+            <h2>Timing</h2>
+            <div class="control-group">
+                <label>Intro Silence</label>
+                <input type="range" id="introTime" min="0" max="20" value="3" step="1">
+                <div class="range-value">
+                    <span>0s</span>
+                    <span id="introTimeValue">3s</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Outro Silence</label>
+                <input type="range" id="outroTime" min="0" max="30" value="5" step="1">
+                <div class="range-value">
+                    <span>0s</span>
+                    <span id="outroTimeValue">5s</span>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Voice Duration (simulated)</label>
+                <input type="range" id="voiceDuration" min="30" max="600" value="120" step="30">
+                <div class="range-value">
+                    <span>30s</span>
+                    <span id="voiceDurationValue">2:00</span>
+                </div>
+            </div>
+
+            <h2>Options</h2>
+            <div class="checkbox-group">
+                <input type="checkbox" id="subliminalFromVoice" checked>
+                <label for="subliminalFromVoice">Create subliminal from voice</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="useAmbient" checked>
+                <label for="useAmbient">Include ambient music</label>
+            </div>
+        </div>
+
+        <div class="preview">
+            <div class="workflow-diagram">
+                <!-- Stage 1: Voice Input -->
+                <div class="stage">
+                    <div class="stage-header">
+                        <div class="stage-number">1</div>
+                        <div class="stage-title">Load Voice Recording</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="stage-visual">
+                            <div class="waveform" id="voiceWaveform"></div>
+                        </div>
+                        <div class="stage-info">
+                            <p>Load and normalize the voice recording containing affirmations.</p>
+                            <ul class="param-list">
+                                <li><span class="key">Duration:</span> <span class="value" id="voiceDurationDisplay">2:00</span></li>
+                                <li><span class="key">Normalize:</span> <span class="value">Yes</span></li>
+                                <li><span class="key">Convert to:</span> <span class="value">Stereo</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 2: Binaural Generation -->
+                <div class="stage">
+                    <div class="stage-header">
+                        <div class="stage-number">2</div>
+                        <div class="stage-title">Generate Binaural Beats</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="stage-visual">
+                            <div class="binaural-viz">
+                                <div class="ear-channel">
+                                    <div class="ear-label">Left Ear</div>
+                                    <div class="frequency-display" id="leftFreqDisplay">200 Hz</div>
+                                </div>
+                                <div class="ear-channel">
+                                    <div class="ear-label">Right Ear</div>
+                                    <div class="frequency-display" id="rightFreqDisplay">206 Hz</div>
+                                </div>
+                            </div>
+                            <div class="beat-indicator" id="beatIndicator">
+                                Perceived beat: 6.0 Hz (Theta - Learning)
+                            </div>
+                        </div>
+                        <div class="stage-info">
+                            <p>Generate stereo sine waves creating a binaural beat at the theta frequency.</p>
+                            <ul class="param-list">
+                                <li><span class="key">Carrier:</span> <span class="value" id="carrierDisplay">200 Hz</span></li>
+                                <li><span class="key">Theta:</span> <span class="value" id="thetaDisplay">6.0 Hz</span></li>
+                                <li><span class="key">Sample Rate:</span> <span class="value">44100 Hz</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 3: Ambient -->
+                <div class="stage" id="ambientStage">
+                    <div class="stage-header">
+                        <div class="stage-number">3</div>
+                        <div class="stage-title">Prepare Ambient Music</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="stage-visual">
+                            <div class="waveform" id="ambientWaveform"></div>
+                        </div>
+                        <div class="stage-info">
+                            <p>Load ambient music or generate pink noise placeholder. Loop with crossfade to match duration.</p>
+                            <ul class="param-list">
+                                <li><span class="key">Source:</span> <span class="value" id="ambientSource">Generated pink noise</span></li>
+                                <li><span class="key">Crossfade:</span> <span class="value">5s</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 4: Subliminal -->
+                <div class="stage" id="subliminalStage">
+                    <div class="stage-header">
+                        <div class="stage-number">4</div>
+                        <div class="stage-title">Create Subliminal Track</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="stage-visual">
+                            <div class="waveform" id="subliminalWaveform"></div>
+                        </div>
+                        <div class="stage-info">
+                            <p id="subliminalDesc">Copy voice track, apply EQ (100-4000 Hz), loop to fill duration.</p>
+                            <ul class="param-list">
+                                <li><span class="key">Low Pass:</span> <span class="value">4000 Hz</span></li>
+                                <li><span class="key">High Pass:</span> <span class="value">100 Hz</span></li>
+                                <li><span class="key">Gap:</span> <span class="value">500 ms</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 5: Mix -->
+                <div class="stage">
+                    <div class="stage-header">
+                        <div class="stage-number">5</div>
+                        <div class="stage-title">Mix All Tracks</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="stage-visual">
+                            <div class="mix-meter" id="mixMeter">
+                                <div class="track-meter">
+                                    <span class="track-name">Voice</span>
+                                    <div class="meter-bar"><div class="meter-fill voice-fill" id="voiceMeter"></div></div>
+                                    <span class="meter-value" id="voiceMeterVal">0 dB</span>
+                                </div>
+                                <div class="track-meter">
+                                    <span class="track-name">Binaural</span>
+                                    <div class="meter-bar"><div class="meter-fill binaural-fill" id="binauralMeter"></div></div>
+                                    <span class="meter-value" id="binauralMeterVal">-10 dB</span>
+                                </div>
+                                <div class="track-meter">
+                                    <span class="track-name">Ambient</span>
+                                    <div class="meter-bar"><div class="meter-fill ambient-fill" id="ambientMeter"></div></div>
+                                    <span class="meter-value" id="ambientMeterVal">-20 dB</span>
+                                </div>
+                                <div class="track-meter">
+                                    <span class="track-name">Subliminal</span>
+                                    <div class="meter-bar"><div class="meter-fill subliminal-fill" id="subliminalMeter"></div></div>
+                                    <span class="meter-value" id="subliminalMeterVal">-35 dB</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stage-info">
+                            <p>Layer tracks: binaural base → ambient → subliminal → voice (offset by intro).</p>
+                            <ul class="param-list">
+                                <li><span class="key">Fade In:</span> <span class="value">2s</span></li>
+                                <li><span class="key">Fade Out:</span> <span class="value">3s</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 6: Export -->
+                <div class="stage">
+                    <div class="stage-header">
+                        <div class="stage-number">6</div>
+                        <div class="stage-title">Export</div>
+                    </div>
+                    <div class="stage-content">
+                        <div class="stage-visual" style="text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 8px;">📁</div>
+                            <div style="font-family: monospace; color: #a78bfa;">output.mp3</div>
+                            <div style="font-size: 0.75rem; color: #7c7c9a; margin-top: 4px;">320 kbps</div>
+                        </div>
+                        <div class="stage-info">
+                            <p>Export to MP3, WAV, or FLAC format.</p>
+                            <ul class="param-list">
+                                <li><span class="key">Format:</span> <span class="value">MP3</span></li>
+                                <li><span class="key">Bitrate:</span> <span class="value">320 kbps</span></li>
+                                <li><span class="key">Total Duration:</span> <span class="value" id="totalDurationDisplay">2:08</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline visualization -->
+                <div class="timeline">
+                    <div class="timeline-header">
+                        <span>Timeline</span>
+                        <span id="timelineTotal">Total: 2:08</span>
+                    </div>
+                    <div class="timeline-bar">
+                        <div class="timeline-segment segment-intro" id="timelineIntro">Intro</div>
+                        <div class="timeline-segment segment-voice" id="timelineVoice">Voice</div>
+                        <div class="timeline-segment segment-outro" id="timelineOutro">Outro</div>
+                    </div>
+                    <div class="timeline-tracks">
+                        <div class="timeline-track">
+                            <span class="timeline-track-name">Binaural</span>
+                            <div class="timeline-track-bar track-binaural"></div>
+                        </div>
+                        <div class="timeline-track">
+                            <span class="timeline-track-name">Ambient</span>
+                            <div class="timeline-track-bar track-ambient" id="ambientTrackBar"></div>
+                        </div>
+                        <div class="timeline-track">
+                            <span class="timeline-track-name">Subliminal</span>
+                            <div class="timeline-track-bar track-subliminal" id="subliminalTrackBar"></div>
+                        </div>
+                        <div class="timeline-track">
+                            <span class="timeline-track-name">Voice</span>
+                            <div class="timeline-track-bar track-voice">
+                                <div class="track-voice-inner" id="voiceTrackBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="prompt-area">
+            <div class="prompt-header">
+                <h3>Generated Command</h3>
+                <button class="copy-btn" id="copyBtn">Copy</button>
+            </div>
+            <div class="prompt-output" id="promptOutput"></div>
+        </div>
+    </div>
+
+    <script>
+        // Default values
+        const DEFAULTS = {
+            preset: 'standard',
+            baseFreq: 200,
+            thetaFreq: 6.0,
+            voiceLevel: 0,
+            binauralLevel: -10,
+            ambientLevel: -20,
+            subliminalLevel: -35,
+            introTime: 3,
+            outroTime: 5,
+            voiceDuration: 120,
+            subliminalFromVoice: true,
+            useAmbient: true
+        };
+
+        // Presets from the Python code
+        const PRESETS = {
+            standard: {
+                voiceLevel: 0, binauralLevel: -10, ambientLevel: -20, subliminalLevel: -35,
+                baseFreq: 200, thetaFreq: 6.0, introTime: 3, outroTime: 5,
+                description: 'Standard balanced session'
+            },
+            morning: {
+                voiceLevel: 0, binauralLevel: -8, ambientLevel: -18, subliminalLevel: -35,
+                baseFreq: 200, thetaFreq: 6.0, introTime: 3, outroTime: 5,
+                description: 'Energizing morning session'
+            },
+            night: {
+                voiceLevel: -2, binauralLevel: -12, ambientLevel: -15, subliminalLevel: -35,
+                baseFreq: 200, thetaFreq: 5.5, introTime: 5, outroTime: 8,
+                description: 'Relaxing evening session'
+            },
+            sleep: {
+                voiceLevel: -5, binauralLevel: -15, ambientLevel: -12, subliminalLevel: -35,
+                baseFreq: 180, thetaFreq: 4.0, introTime: 10, outroTime: 15,
+                description: 'Gentle overnight session'
+            },
+            subliminal: {
+                voiceLevel: -50, binauralLevel: -10, ambientLevel: -15, subliminalLevel: -30,
+                baseFreq: 180, thetaFreq: 4.0, introTime: 2, outroTime: 2,
+                description: 'Subliminal-only (no audible voice)'
+            }
+        };
+
+        // State
+        const state = { ...DEFAULTS };
+
+        // Theta descriptions
+        function getThetaDescription(freq) {
+            if (freq <= 4.5) return 'Deep meditation, subconscious access';
+            if (freq <= 5.5) return 'Creativity, visualization';
+            if (freq <= 6.5) return 'Learning, memory programming';
+            return 'Light meditation, relaxation';
+        }
+
+        // Format time
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // dB to percentage (for meter display)
+        function dbToPercent(db) {
+            // Map -50 to 0 dB to 0% to 100%
+            return Math.max(0, Math.min(100, (db + 50) * 2));
+        }
+
+        // Create waveform bars
+        function createWaveform(container, color = '#a78bfa', barCount = 30) {
+            container.innerHTML = '';
+            for (let i = 0; i < barCount; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'waveform-bar';
+                const height = 10 + Math.random() * 50;
+                bar.style.height = `${height}px`;
+                bar.style.animationDelay = `${i * 0.05}s`;
+                bar.style.background = `linear-gradient(to top, ${color}88, ${color})`;
+                container.appendChild(bar);
+            }
+        }
+
+        // Initialize waveforms
+        function initWaveforms() {
+            createWaveform(document.getElementById('voiceWaveform'), '#10b981');
+            createWaveform(document.getElementById('ambientWaveform'), '#3b82f6');
+            createWaveform(document.getElementById('subliminalWaveform'), '#f59e0b');
+        }
+
+        // Update all displays
+        function updateAll() {
+            // Value displays
+            document.getElementById('baseFreqValue').textContent = `${state.baseFreq} Hz`;
+            document.getElementById('thetaFreqValue').textContent = `${state.thetaFreq.toFixed(1)} Hz`;
+            document.getElementById('voiceLevelValue').textContent = `${state.voiceLevel} dB`;
+            document.getElementById('binauralLevelValue').textContent = `${state.binauralLevel} dB`;
+            document.getElementById('ambientLevelValue').textContent = `${state.ambientLevel} dB`;
+            document.getElementById('subliminalLevelValue').textContent = `${state.subliminalLevel} dB`;
+            document.getElementById('introTimeValue').textContent = `${state.introTime}s`;
+            document.getElementById('outroTimeValue').textContent = `${state.outroTime}s`;
+            document.getElementById('voiceDurationValue').textContent = formatTime(state.voiceDuration);
+
+            // Binaural display
+            const leftFreq = state.baseFreq;
+            const rightFreq = state.baseFreq + state.thetaFreq;
+            document.getElementById('leftFreqDisplay').textContent = `${leftFreq} Hz`;
+            document.getElementById('rightFreqDisplay').textContent = `${rightFreq.toFixed(0)} Hz`;
+            document.getElementById('carrierDisplay').textContent = `${state.baseFreq} Hz`;
+            document.getElementById('thetaDisplay').textContent = `${state.thetaFreq.toFixed(1)} Hz`;
+            document.getElementById('beatIndicator').textContent =
+                `Perceived beat: ${state.thetaFreq.toFixed(1)} Hz (Theta - ${getThetaDescription(state.thetaFreq)})`;
+
+            // Voice duration display
+            document.getElementById('voiceDurationDisplay').textContent = formatTime(state.voiceDuration);
+
+            // Total duration
+            const totalDuration = state.introTime + state.voiceDuration + state.outroTime;
+            document.getElementById('totalDurationDisplay').textContent = formatTime(totalDuration);
+            document.getElementById('timelineTotal').textContent = `Total: ${formatTime(totalDuration)}`;
+
+            // Mix meters
+            document.getElementById('voiceMeter').style.width = `${dbToPercent(state.voiceLevel)}%`;
+            document.getElementById('binauralMeter').style.width = `${dbToPercent(state.binauralLevel)}%`;
+            document.getElementById('ambientMeter').style.width = `${dbToPercent(state.ambientLevel)}%`;
+            document.getElementById('subliminalMeter').style.width = `${dbToPercent(state.subliminalLevel)}%`;
+
+            document.getElementById('voiceMeterVal').textContent = `${state.voiceLevel} dB`;
+            document.getElementById('binauralMeterVal').textContent = `${state.binauralLevel} dB`;
+            document.getElementById('ambientMeterVal').textContent = `${state.ambientLevel} dB`;
+            document.getElementById('subliminalMeterVal').textContent = `${state.subliminalLevel} dB`;
+
+            // Timeline segments
+            const introPercent = (state.introTime / totalDuration) * 100;
+            const voicePercent = (state.voiceDuration / totalDuration) * 100;
+            const outroPercent = (state.outroTime / totalDuration) * 100;
+
+            const introEl = document.getElementById('timelineIntro');
+            const voiceEl = document.getElementById('timelineVoice');
+            const outroEl = document.getElementById('timelineOutro');
+
+            introEl.style.left = '0%';
+            introEl.style.width = `${introPercent}%`;
+            introEl.textContent = state.introTime > 0 ? `Intro ${state.introTime}s` : '';
+
+            voiceEl.style.left = `${introPercent}%`;
+            voiceEl.style.width = `${voicePercent}%`;
+            voiceEl.textContent = 'Voice';
+
+            outroEl.style.left = `${introPercent + voicePercent}%`;
+            outroEl.style.width = `${outroPercent}%`;
+            outroEl.textContent = state.outroTime > 0 ? `Outro ${state.outroTime}s` : '';
+
+            // Voice track position in timeline
+            const voiceTrackBar = document.getElementById('voiceTrackBar');
+            voiceTrackBar.style.left = `${introPercent}%`;
+            voiceTrackBar.style.width = `${voicePercent}%`;
+
+            // Show/hide stages based on options
+            document.getElementById('ambientStage').style.display = state.useAmbient ? 'block' : 'none';
+            document.getElementById('subliminalStage').style.display = state.subliminalFromVoice ? 'block' : 'none';
+            document.getElementById('ambientTrackBar').style.background = state.useAmbient
+                ? 'linear-gradient(90deg, transparent, #3b82f6 2%, #3b82f6 98%, transparent)'
+                : 'transparent';
+            document.getElementById('subliminalTrackBar').style.background = state.subliminalFromVoice
+                ? 'linear-gradient(90deg, transparent, #f59e0b 2%, #f59e0b 98%, transparent)'
+                : 'transparent';
+
+            // Ambient source text
+            document.getElementById('ambientSource').textContent = 'Generated pink noise (or load file)';
+
+            // Update prompt
+            updatePrompt();
+        }
+
+        // Update prompt output
+        function updatePrompt() {
+            const parts = [];
+            const flags = [];
+
+            // Base command
+            let cmd = 'python hypnosis_audio_builder.py --voice script.wav';
+
+            // Check for non-default preset
+            const activePreset = state.preset;
+            if (activePreset !== 'standard') {
+                flags.push(`--session ${activePreset}`);
+            }
+
+            // Check for custom values that differ from current preset
+            const preset = PRESETS[activePreset];
+
+            if (state.thetaFreq !== preset.thetaFreq) {
+                flags.push(`--theta ${state.thetaFreq}`);
+                parts.push(`theta frequency of ${state.thetaFreq} Hz`);
+            }
+
+            if (state.baseFreq !== preset.baseFreq && state.baseFreq !== 200) {
+                parts.push(`carrier frequency of ${state.baseFreq} Hz`);
+            }
+
+            if (state.voiceLevel !== preset.voiceLevel) {
+                flags.push(`--voice-level ${state.voiceLevel}`);
+            }
+            if (state.binauralLevel !== preset.binauralLevel) {
+                flags.push(`--binaural-level ${state.binauralLevel}`);
+            }
+            if (state.ambientLevel !== preset.ambientLevel) {
+                flags.push(`--ambient-level ${state.ambientLevel}`);
+            }
+            if (state.subliminalLevel !== preset.subliminalLevel) {
+                flags.push(`--subliminal-level ${state.subliminalLevel}`);
+            }
+
+            if (state.introTime !== preset.introTime) {
+                flags.push(`--intro ${state.introTime}`);
+            }
+            if (state.outroTime !== preset.outroTime) {
+                flags.push(`--outro ${state.outroTime}`);
+            }
+
+            // Options
+            if (state.subliminalFromVoice) {
+                flags.push('--subliminal-from-voice');
+            }
+
+            flags.push('-o output.mp3');
+
+            // Build command
+            const fullCmd = cmd + (flags.length > 0 ? ' \\\n    ' + flags.join(' \\\n    ') : '');
+
+            // Build description
+            let description = '';
+            if (activePreset !== 'standard') {
+                description = `Using the <code>${activePreset}</code> session preset`;
+                if (parts.length > 0) {
+                    description += ` with custom ${parts.join(', ')}`;
+                }
+                description += '. ';
+            } else if (parts.length > 0) {
+                description = `Custom configuration with ${parts.join(', ')}. `;
+            }
+
+            description += `This creates a ${formatTime(state.introTime + state.voiceDuration + state.outroTime)} track with `;
+            description += `${state.thetaFreq} Hz theta waves for ${getThetaDescription(state.thetaFreq).toLowerCase()}`;
+
+            if (state.subliminalFromVoice) {
+                description += ', and subliminal affirmations derived from your voice recording';
+            }
+            description += '.';
+
+            document.getElementById('promptOutput').innerHTML = `
+                <div style="margin-bottom: 12px;">${description}</div>
+                <div style="background: #0d0d14; padding: 12px; border-radius: 6px; white-space: pre-wrap;">${fullCmd}</div>
+            `;
+        }
+
+        // Apply preset
+        function applyPreset(presetName) {
+            const preset = PRESETS[presetName];
+            if (!preset) return;
+
+            state.preset = presetName;
+            state.voiceLevel = preset.voiceLevel;
+            state.binauralLevel = preset.binauralLevel;
+            state.ambientLevel = preset.ambientLevel;
+            state.subliminalLevel = preset.subliminalLevel;
+            state.baseFreq = preset.baseFreq;
+            state.thetaFreq = preset.thetaFreq;
+            state.introTime = preset.introTime;
+            state.outroTime = preset.outroTime;
+
+            // Update slider values
+            document.getElementById('baseFreq').value = state.baseFreq;
+            document.getElementById('thetaFreq').value = state.thetaFreq;
+            document.getElementById('voiceLevel').value = state.voiceLevel;
+            document.getElementById('binauralLevel').value = state.binauralLevel;
+            document.getElementById('ambientLevel').value = state.ambientLevel;
+            document.getElementById('subliminalLevel').value = state.subliminalLevel;
+            document.getElementById('introTime').value = state.introTime;
+            document.getElementById('outroTime').value = state.outroTime;
+
+            // Update preset buttons
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.preset === presetName);
+            });
+
+            updateAll();
+        }
+
+        // Event listeners
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+        });
+
+        document.getElementById('baseFreq').addEventListener('input', e => {
+            state.baseFreq = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('thetaFreq').addEventListener('input', e => {
+            state.thetaFreq = parseFloat(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('voiceLevel').addEventListener('input', e => {
+            state.voiceLevel = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('binauralLevel').addEventListener('input', e => {
+            state.binauralLevel = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('ambientLevel').addEventListener('input', e => {
+            state.ambientLevel = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('subliminalLevel').addEventListener('input', e => {
+            state.subliminalLevel = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('introTime').addEventListener('input', e => {
+            state.introTime = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('outroTime').addEventListener('input', e => {
+            state.outroTime = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('voiceDuration').addEventListener('input', e => {
+            state.voiceDuration = parseInt(e.target.value);
+            updateAll();
+        });
+
+        document.getElementById('subliminalFromVoice').addEventListener('change', e => {
+            state.subliminalFromVoice = e.target.checked;
+            updateAll();
+        });
+
+        document.getElementById('useAmbient').addEventListener('change', e => {
+            state.useAmbient = e.target.checked;
+            updateAll();
+        });
+
+        // Copy button
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const text = document.getElementById('promptOutput').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copyBtn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 1500);
+            });
+        });
+
+        // Initialize
+        initWaveforms();
+        updateAll();
+    </script>
+</body>
+</html>
