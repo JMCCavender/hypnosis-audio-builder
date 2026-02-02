@@ -516,8 +516,8 @@
             padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            min-width: 160px;
+            gap: 10px;
+            min-width: 200px;
         }
 
         .master-label {
@@ -544,6 +544,84 @@
             text-shadow: 0 0 6px rgba(167, 139, 250, 0.5);
             font-size: 0.7rem;
             text-align: center;
+        }
+
+        .wave-type-indicator {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .wave-type-indicator.theta {
+            background: #a78bfa33;
+            color: #a78bfa;
+            border: 1px solid #a78bfa55;
+        }
+
+        .wave-type-indicator.alpha {
+            background: #60a5fa33;
+            color: #60a5fa;
+            border: 1px solid #60a5fa55;
+        }
+
+        .wave-type-indicator.beta {
+            background: #4ade8033;
+            color: #4ade80;
+            border: 1px solid #4ade8055;
+        }
+
+        .session-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+        }
+
+        .session-btn {
+            padding: 5px 8px;
+            background: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 100%);
+            border: 1px solid #444;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.5rem;
+            font-weight: 700;
+            color: #888;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            transition: all 0.1s;
+        }
+
+        .session-btn:hover {
+            border-color: #666;
+            color: #ccc;
+        }
+
+        .session-btn.active {
+            color: #fff;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        .session-btn.theta { border-left: 2px solid #a78bfa; }
+        .session-btn.alpha { border-left: 2px solid #60a5fa; }
+        .session-btn.beta { border-left: 2px solid #4ade80; }
+
+        .session-btn.theta.active {
+            background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%);
+            border-color: #a78bfa;
+        }
+
+        .session-btn.alpha.active {
+            background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+            border-color: #60a5fa;
+        }
+
+        .session-btn.beta.active {
+            background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+            border-color: #4ade80;
         }
 
         /* Energy Section */
@@ -905,7 +983,8 @@
 
             <!-- Master Binaural Section -->
             <div class="master-section">
-                <span class="master-label">Theta Waves</span>
+                <span class="master-label">Brainwaves</span>
+                <div class="wave-type-indicator" id="waveTypeIndicator">THETA</div>
                 <div class="master-knobs">
                     <div class="knob-container">
                         <span class="knob-label">Carrier</span>
@@ -916,8 +995,8 @@
                         <span class="knob-value" id="carrierValue">200 Hz</span>
                     </div>
                     <div class="knob-container">
-                        <span class="knob-label">Theta</span>
-                        <div class="knob small" id="thetaKnob" data-param="thetaFreq" data-min="4" data-max="8">
+                        <span class="knob-label">Freq</span>
+                        <div class="knob small" id="thetaKnob" data-param="thetaFreq" data-min="4" data-max="30">
                             <div class="knob-indicator"></div>
                             <div class="knob-center"></div>
                         </div>
@@ -925,6 +1004,13 @@
                     </div>
                 </div>
                 <div class="freq-display" id="freqDisplay">L:200 R:206 Hz</div>
+                <div class="session-presets">
+                    <button class="session-btn theta active" data-session="morning" data-freq="6.0">Morning</button>
+                    <button class="session-btn theta" data-session="night" data-freq="5.5">Night</button>
+                    <button class="session-btn theta" data-session="sleep" data-freq="4.0">Sleep</button>
+                    <button class="session-btn alpha" data-session="focus" data-freq="10.0">Focus</button>
+                    <button class="session-btn beta" data-session="active" data-freq="15.0">Active</button>
+                </div>
             </div>
 
             <!-- Energy Beats Section -->
@@ -932,9 +1018,9 @@
                 <span class="energy-label">Energy Beats</span>
                 <div class="energy-pads">
                     <button class="energy-pad off active" data-style="off">Off</button>
-                    <button class="energy-pad" data-style="focus">Focus</button>
                     <button class="energy-pad" data-style="flow">Flow</button>
                     <button class="energy-pad" data-style="drive">Drive</button>
+                    <button class="energy-pad" data-style="intense">Intense</button>
                 </div>
                 <div class="bpm-display" id="bpmDisplay">—</div>
             </div>
@@ -1015,6 +1101,15 @@
             intense: { bpm: 140 }
         };
 
+        // Session presets
+        const SESSION_PRESETS = {
+            morning: { freq: 6.0, type: 'theta' },
+            night: { freq: 5.5, type: 'theta' },
+            sleep: { freq: 4.0, type: 'theta' },
+            focus: { freq: 10.0, type: 'alpha' },
+            active: { freq: 15.0, type: 'beta' }
+        };
+
         // State
         const state = {
             musicLevel: 0,
@@ -1027,8 +1122,16 @@
             musicMuted: false,
             binauralMuted: false,
             subliminalMuted: false,
-            energyMuted: false
+            energyMuted: false,
+            session: 'morning'
         };
+
+        // Get wave type from frequency
+        function getWaveType(freq) {
+            if (freq < 8) return 'theta';
+            if (freq < 13) return 'alpha';
+            return 'beta';
+        }
 
         // dB to linear gain
         function dbToGain(db) {
@@ -1338,6 +1441,10 @@
 
             if (param === 'carrierFreq' || param === 'thetaFreq') {
                 updateBinauralFreq();
+                // Clear session when manually adjusting frequency
+                if (param === 'thetaFreq') {
+                    state.session = null;
+                }
             } else {
                 updateGains();
             }
@@ -1362,7 +1469,7 @@
             setKnobRotation('subliminalKnob', state.subliminalLevel, -50, -15);
             setKnobRotation('energyKnob', state.energyLevel, -40, -10);
             setKnobRotation('carrierKnob', state.carrierFreq, 100, 300);
-            setKnobRotation('thetaKnob', state.thetaFreq, 4, 8);
+            setKnobRotation('thetaKnob', state.thetaFreq, 4, 30);
 
             // Values
             document.getElementById('musicValue').textContent = `${state.musicLevel} dB`;
@@ -1371,6 +1478,17 @@
             document.getElementById('energyValue').textContent = `${state.energyLevel} dB`;
             document.getElementById('carrierValue').textContent = `${state.carrierFreq} Hz`;
             document.getElementById('thetaValue').textContent = `${state.thetaFreq.toFixed(1)} Hz`;
+
+            // Wave type indicator
+            const waveType = getWaveType(state.thetaFreq);
+            const waveIndicator = document.getElementById('waveTypeIndicator');
+            waveIndicator.textContent = waveType.toUpperCase();
+            waveIndicator.className = 'wave-type-indicator ' + waveType;
+
+            // Session preset buttons
+            document.querySelectorAll('.session-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.session === state.session);
+            });
 
             // Voice zone indicator
             const voiceZone = document.getElementById('voiceZone');
@@ -1437,19 +1555,21 @@
 
         // Generate command prompt
         function updatePrompt() {
-            let cmd = 'python subliminal_music_builder.py \\\n';
-            cmd += '  --music your-music.mp3 \\\n';
+            let cmd = 'python hypnosis_audio_builder.py \\\n';
             cmd += '  --voice your-affirmations.wav \\\n';
 
-            if (state.musicLevel !== 0) cmd += `  --music-level ${state.musicLevel} \\\n`;
-            if (state.subliminalLevel !== -32) cmd += `  --subliminal-level ${state.subliminalLevel} \\\n`;
-            if (state.binauralLevel !== -18) cmd += `  --binaural-level ${state.binauralLevel} \\\n`;
-            if (state.thetaFreq !== 6.0) cmd += `  --theta ${state.thetaFreq} \\\n`;
-            if (state.carrierFreq !== 200) cmd += `  --carrier ${state.carrierFreq} \\\n`;
-            if (state.energyStyle !== 'off') {
-                cmd += `  --energy ${state.energyStyle} \\\n`;
-                if (state.energyLevel !== -25) cmd += `  --energy-level ${state.energyLevel} \\\n`;
+            // Use session preset if selected, otherwise custom frequency
+            if (state.session) {
+                cmd += `  --session ${state.session} \\\n`;
+            } else {
+                cmd += `  --theta-freq ${state.thetaFreq} \\\n`;
             }
+
+            cmd += '  --subliminal-from-voice \\\n';
+
+            if (state.binauralLevel !== -18) cmd += `  --binaural-volume ${state.binauralLevel} \\\n`;
+            if (state.subliminalLevel !== -32) cmd += `  --subliminal-volume ${state.subliminalLevel} \\\n`;
+            if (state.carrierFreq !== 200) cmd += `  --base-freq ${state.carrierFreq} \\\n`;
 
             cmd += '  -o output.mp3';
 
@@ -1775,6 +1895,17 @@
                     startEnergyBeats();
                 }
                 updateGains();
+                updateUI();
+            });
+        });
+
+        document.querySelectorAll('.session-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const session = btn.dataset.session;
+                const freq = parseFloat(btn.dataset.freq);
+                state.session = session;
+                state.thetaFreq = freq;
+                updateBinauralFreq();
                 updateUI();
             });
         });
