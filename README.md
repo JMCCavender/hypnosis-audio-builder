@@ -1,6 +1,6 @@
 # Hypnosis Audio Builder
 
-A Python-based audio production tool for creating self-hypnosis audio tracks with binaural beats, ambient music, and subliminal messaging.
+A Python-based audio production tool for creating self-hypnosis audio tracks with binaural beats (theta, alpha, and beta waves), ambient music, and subliminal messaging.
 
 ## The Self-Hypnosis Creation Workflow
 
@@ -70,6 +70,7 @@ The `--subliminal-from-voice` flag creates the subliminal layer from your voice 
 ### Session Presets
 
 ```bash
+# Theta Wave Sessions (subconscious access)
 # Morning (energizing, 6 Hz theta)
 python hypnosis_audio_builder.py --voice script.wav --session morning --subliminal-from-voice -o morning.mp3
 
@@ -78,6 +79,13 @@ python hypnosis_audio_builder.py --voice script.wav --session night --subliminal
 
 # Sleep (deep programming, 4 Hz theta)
 python hypnosis_audio_builder.py --voice script.wav --session sleep --subliminal-from-voice -o sleep.mp3
+
+# Alpha/Beta Wave Sessions (focus and active thinking)
+# Focus (relaxed focus, 10 Hz alpha)
+python hypnosis_audio_builder.py --voice script.wav --session focus --subliminal-from-voice -o focus.mp3
+
+# Active (concentration, 15 Hz beta)
+python hypnosis_audio_builder.py --voice script.wav --session active --subliminal-from-voice -o active.mp3
 
 # Subliminal-only (voice inaudible)
 python hypnosis_audio_builder.py --voice script.wav --session subliminal -o subliminal_only.mp3
@@ -105,18 +113,20 @@ python hypnosis_audio_builder.py --test
 | Layer | Volume | Purpose |
 |-------|--------|---------|
 | **Voice** | 0 dB | Main affirmations to conscious mind |
-| **Binaural Beats** | -10 dB | Theta waves open subconscious access |
+| **Binaural Beats** | -10 dB | Brainwave entrainment (theta/alpha/beta) |
 | **Ambient Music** | -20 dB | Calming atmosphere |
 | **Subliminal** | -35 dB | Same affirmations beneath conscious hearing |
 
-### Theta Frequencies
+### Brainwave Frequencies
 
-| Hz | State | Best For |
-|----|-------|----------|
-| 4.0 | Deep meditation | Overnight, deep programming |
-| 5.5 | Creativity | Visualization, imagery |
-| 6.0 | Learning | Default, general use |
-| 7.5 | Light meditation | Relaxation |
+| Range | Hz | State | Best For |
+|-------|-----|-------|----------|
+| **Theta** | 4.0 | Deep meditation | Overnight, deep programming |
+| **Theta** | 5.5 | Creativity | Visualization, imagery |
+| **Theta** | 6.0 | Learning | Default, general use |
+| **Theta** | 7.5 | Light meditation | Relaxation |
+| **Alpha** | 10.0 | Relaxed focus | Learning, calm awareness |
+| **Beta** | 15.0 | Active thinking | Concentration, mental clarity |
 
 **Use headphones!** Binaural beats require separate frequencies per ear.
 
@@ -127,12 +137,12 @@ python hypnosis_audio_builder.py --test
 ```bash
 # Core options
 --voice, -v FILE          Voice recording
---session, -S TYPE        morning/night/sleep/subliminal/standard
+--session, -S TYPE        morning/night/sleep/focus/active/subliminal/standard
 --subliminal-from-voice   Create subliminal from voice (RECOMMENDED)
 --output, -o FILE         Output file
 
 # Customize
---theta-freq FREQ         Override theta (4-8 Hz)
+--theta-freq FREQ         Override frequency (4-30 Hz: theta/alpha/beta)
 --ambient-music FILE      Custom ambient
 --validate-script FILE    Check affirmation script
 
