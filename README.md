@@ -46,14 +46,46 @@ Opportunities flow toward me effortlessly.
 
 ## Quick Start
 
-### Installation
+### Installation (Mac)
+
+Clone the repo and run the installer:
+
+```bash
+git clone https://github.com/JMCCavender/hypnosis-audio-builder.git
+cd hypnosis-audio-builder
+./install.sh
+```
+
+This will:
+- Check that Python 3.9+ is installed
+- Install ffmpeg via Homebrew (prompts first, needed for MP3 support)
+- Create a virtual environment
+- Install the app and all dependencies
+- Verify everything works
+
+After install, activate the environment and use the `hypnosis` command:
+
+```bash
+source venv/bin/activate
+hypnosis --help
+```
+
+**Alternative** - manual install:
 
 ```bash
 cd hypnosis-audio-builder
 python3 -m venv venv
 source venv/bin/activate
-pip install -r requirements.txt
-brew install ffmpeg  # macOS
+pip install -e .
+brew install ffmpeg  # required for MP3 support
+```
+
+Or use Make:
+
+```bash
+make install     # full install
+make test-audio  # verify it works
+make help        # see all commands
 ```
 
 ### Basic Usage (Recommended)
@@ -226,6 +258,10 @@ builder.build(
 **Binaural beats not noticeable**: They're subtle by design. Use headphones.
 
 **Script validation issues**: Rewrite negations and future tense.
+
+**`hypnosis` command not found**: Make sure you activated the virtual environment: `source venv/bin/activate`
+
+**Installation issues**: Run `./install.sh --check` to verify prerequisites, or `make check`.
 
 ---
 
