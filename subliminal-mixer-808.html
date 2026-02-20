@@ -885,24 +885,44 @@
             <div class="file-box music">
                 <div class="file-header">
                     <span class="file-icon">🎵</span>
-                    <span class="file-label">Music (Bach, Lo-fi, etc.)</span>
+                    <span class="file-label">Songs (Album Tracks)</span>
                 </div>
                 <div class="file-row">
-                    <input type="file" id="musicInput" class="file-input" accept="audio/*">
-                    <button class="file-btn" id="musicBtn">Choose Music</button>
-                    <span class="file-name empty" id="musicName">No file selected</span>
+                    <input type="file" id="musicInput" class="file-input" accept="audio/*" multiple>
+                    <button class="file-btn" id="musicBtn">Load Songs</button>
+                    <span class="file-name empty" id="musicName">No files selected</span>
                 </div>
             </div>
             <div class="file-box voice">
                 <div class="file-header">
                     <span class="file-icon">🎤</span>
-                    <span class="file-label">Voice (Affirmations)</span>
+                    <span class="file-label">Vocals (Affirmations)</span>
                 </div>
                 <div class="file-row">
-                    <input type="file" id="voiceInput" class="file-input" accept="audio/*">
-                    <button class="file-btn" id="voiceBtn">Choose Voice</button>
-                    <span class="file-name empty" id="voiceName">No file selected</span>
+                    <input type="file" id="voiceInput" class="file-input" accept="audio/*" multiple>
+                    <button class="file-btn" id="voiceBtn">Load Vocals</button>
+                    <span class="file-name empty" id="voiceName">No files selected</span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Track List (Album Mode) -->
+        <div class="track-list-section" id="trackListSection" style="display:none">
+            <div class="track-list-header">
+                <span class="track-list-title">ALBUM TRACKS</span>
+                <span class="track-list-count" id="trackCount"></span>
+            </div>
+            <div class="track-list" id="trackList"></div>
+            <div class="track-list-footer">
+                <span class="track-list-info" id="trackInfo"></span>
+                <button class="export-album-btn" id="exportAlbumBtn" title="Export all tracks as separate WAV files">
+                    <span>💾</span>
+                    <span class="export-album-text" id="exportAlbumText">EXPORT ALBUM</span>
+                </button>
+            </div>
+            <div class="export-progress" id="exportProgress" style="display:none">
+                <div class="export-progress-bar" id="exportProgressBar"></div>
+                <span class="export-progress-text" id="exportProgressText"></span>
             </div>
         </div>
 
