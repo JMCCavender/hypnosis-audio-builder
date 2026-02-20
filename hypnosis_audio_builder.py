@@ -169,6 +169,22 @@ Examples:
         help="Directory containing voice files for batch processing"
     )
     input_group.add_argument(
+        "--album",
+        type=Path,
+        help="Directory containing songs (ambient tracks) for album build"
+    )
+    input_group.add_argument(
+        "--vocals",
+        type=Path,
+        nargs="+",
+        help="One or more vocal files to pair with album songs"
+    )
+    input_group.add_argument(
+        "--vocals-dir",
+        type=Path,
+        help="Directory containing vocal files for album build"
+    )
+    input_group.add_argument(
         "--validate-script",
         type=Path,
         metavar="FILE",
@@ -540,8 +556,8 @@ def main():
             return 0
     
     # Validate required inputs
-    if not args.test and not args.voice and not args.batch:
-        print("Error: --voice or --batch is required (or use --test for testing)")
+    if not args.test and not args.voice and not args.batch and not args.album:
+        print("Error: --voice, --batch, or --album is required (or use --test for testing)")
         print("Use --help for usage information")
         return 1
     
@@ -594,6 +610,28 @@ def main():
         # Progress callback
         progress = create_progress_bar() if not args.quiet else None
         
+        # Album processing
+        if args.album:
+            from src.album_builder import album_build
+
+            if not args.output_dir:
+                args.output_dir = args.album / "album_output"
+
+            results = album_build(
+                songs_dir=args.album,
+                output_dir=args.output_dir,
+                output_format=args.output_format,
+                session_type=args.session,
+                vocals_dir=args.vocals_dir,
+                vocal_files=args.vocals,
+                subliminal_from_voice=args.subliminal_from_voice,
+                mix_levels=mix_levels,
+                sample_rate=args.sample_rate,
+                quiet=args.quiet,
+            )
+            print(f"\nAlbum build complete: {len(results)} tracks created")
+            return 0
+
         # Batch processing
         if args.batch:
             if not args.output_dir:
