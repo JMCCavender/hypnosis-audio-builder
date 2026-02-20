@@ -95,6 +95,53 @@ def generate_album_output_path(
     return output_dir / filename
 
 
+def _resolve_vocals(
+    vocal_files: Optional[List[Path]],
+    vocals_dir: Optional[Path],
+) -> List[Path]:
+    """Resolve vocal file list from explicit files or directory scan."""
+    if vocal_files:
+        return list(vocal_files)
+    if vocals_dir:
+        return discover_audio_files(vocals_dir)
+    return []
+
+
+def _print_album_plan(
+    songs: List[Path],
+    vocals: List[Path],
+    pairs: List[Tuple[Path, Path]],
+) -> None:
+    """Print the album build plan to stdout."""
+    print(f"Album build: {len(songs)} songs \u00d7 {len(vocals)} vocals \u2192 {len(pairs)} tracks")
+    for i, (song, vocal) in enumerate(pairs, 1):
+        print(f"  {i:02d}. {song.name} + {vocal.name}")
+    print()
+
+
+def _build_track(
+    song_path: Path,
+    vocal_path: Path,
+    output_path: Path,
+    session_type: str,
+    subliminal_from_voice: bool,
+    mix_levels: Optional[MixLevels],
+    sample_rate: int,
+) -> None:
+    """Build a single album track."""
+    builder = HypnosisAudioBuilder(
+        mix_levels=mix_levels,
+        sample_rate=sample_rate,
+        session_type=session_type,
+    )
+    builder.build(
+        voice_path=vocal_path,
+        output_path=output_path,
+        ambient_path=song_path,
+        subliminal_from_voice=subliminal_from_voice,
+    )
+
+
 def album_build(
     songs_dir: Path,
     output_dir: Path,
@@ -125,69 +172,44 @@ def album_build(
     Returns:
         List of output file paths that were created.
     """
-    # Discover songs
     songs = discover_audio_files(songs_dir)
     if not songs:
         if not quiet:
             print(f"No audio files found in songs directory: {songs_dir}")
         return []
 
-    # Resolve vocals
-    if vocal_files:
-        vocals = list(vocal_files)
-    elif vocals_dir:
-        vocals = discover_audio_files(vocals_dir)
-    else:
-        vocals = []
-
+    vocals = _resolve_vocals(vocal_files, vocals_dir)
     if not vocals:
         if not quiet:
             print("No vocal files provided")
         return []
 
-    # Pair them
     pairs = pair_songs_with_vocals(songs, vocals)
 
     if not quiet:
-        print(f"Album build: {len(songs)} songs × {len(vocals)} vocals → {len(pairs)} tracks")
-        for i, (song, vocal) in enumerate(pairs, 1):
-            print(f"  {i:02d}. {song.name} + {vocal.name}")
-        print()
+        _print_album_plan(songs, vocals, pairs)
 
-    # Create output directory
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Build each track
     results = []
     for i, (song_path, vocal_path) in enumerate(pairs, 1):
         output_path = generate_album_output_path(
             song_path, vocal_path, output_dir, output_format, i
         )
-
         if not quiet:
             print(f"[{i}/{len(pairs)}] Building: {output_path.name}")
-
         try:
-            builder = HypnosisAudioBuilder(
-                mix_levels=mix_levels,
-                sample_rate=sample_rate,
-                session_type=session_type,
+            _build_track(
+                song_path, vocal_path, output_path,
+                session_type, subliminal_from_voice, mix_levels, sample_rate,
             )
-
-            builder.build(
-                voice_path=vocal_path,
-                output_path=output_path,
-                ambient_path=song_path,
-                subliminal_from_voice=subliminal_from_voice,
-            )
-
             results.append(output_path)
             if not quiet:
-                print(f"  ✓ {output_path.name}")
+                print(f"  \u2713 {output_path.name}")
         except Exception as e:
             if not quiet:
-                print(f"  ✗ Error on track {i}: {e}")
+                print(f"  \u2717 Error on track {i}: {e}")
             logger.error(f"Album build error on track {i}: {e}", exc_info=True)
 
     if not quiet:

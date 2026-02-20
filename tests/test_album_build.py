@@ -14,11 +14,25 @@ import unittest
 import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.audio_builder import create_test_voice
+
+# Shared test path constants
+SONG1 = Path("song1.mp3")
+SONG2 = Path("song2.mp3")
+SONG3 = Path("song3.mp3")
+SONG_MP3 = Path("song.mp3")
+SONG_WAV = Path("song.wav")
+VOCAL1 = Path("vocal1.wav")
+VOCAL2 = Path("vocal2.wav")
+VOCAL3 = Path("vocal3.wav")
+VOCAL_WAV = Path("vocal.wav")
+V1_WAV = Path("v1.wav")
+VOCALS_DIR_PATH = "/vocals"
+SYS_ARGV = "sys.argv"
 
 
 class TestPairSongsWithVocals(unittest.TestCase):
@@ -28,70 +42,70 @@ class TestPairSongsWithVocals(unittest.TestCase):
         """When songs == vocals, each pairs 1:1."""
         from src.album_builder import pair_songs_with_vocals
 
-        songs = [Path("song1.mp3"), Path("song2.mp3"), Path("song3.mp3")]
-        vocals = [Path("vocal1.wav"), Path("vocal2.wav"), Path("vocal3.wav")]
+        songs = [SONG1, SONG2, SONG3]
+        vocals = [VOCAL1, VOCAL2, VOCAL3]
 
         pairs = pair_songs_with_vocals(songs, vocals)
 
         self.assertEqual(len(pairs), 3)
-        self.assertEqual(pairs[0], (Path("song1.mp3"), Path("vocal1.wav")))
-        self.assertEqual(pairs[1], (Path("song2.mp3"), Path("vocal2.wav")))
-        self.assertEqual(pairs[2], (Path("song3.mp3"), Path("vocal3.wav")))
+        self.assertEqual(pairs[0], (SONG1, VOCAL1))
+        self.assertEqual(pairs[1], (SONG2, VOCAL2))
+        self.assertEqual(pairs[2], (SONG3, VOCAL3))
 
     def test_more_songs_than_vocals_cycles(self):
         """When more songs than vocals, vocals cycle from the beginning."""
         from src.album_builder import pair_songs_with_vocals
 
         songs = [Path(f"song{i}.mp3") for i in range(5)]
-        vocals = [Path("vocal1.wav"), Path("vocal2.wav")]
+        vocals = [VOCAL1, VOCAL2]
 
         pairs = pair_songs_with_vocals(songs, vocals)
 
         self.assertEqual(len(pairs), 5)
         # Vocals cycle: v1, v2, v1, v2, v1
-        self.assertEqual(pairs[0][1], Path("vocal1.wav"))
-        self.assertEqual(pairs[1][1], Path("vocal2.wav"))
-        self.assertEqual(pairs[2][1], Path("vocal1.wav"))
-        self.assertEqual(pairs[3][1], Path("vocal2.wav"))
-        self.assertEqual(pairs[4][1], Path("vocal1.wav"))
+        self.assertEqual(pairs[0][1], VOCAL1)
+        self.assertEqual(pairs[1][1], VOCAL2)
+        self.assertEqual(pairs[2][1], VOCAL1)
+        self.assertEqual(pairs[3][1], VOCAL2)
+        self.assertEqual(pairs[4][1], VOCAL1)
 
     def test_more_vocals_than_songs(self):
         """When more vocals than songs, extra vocals are unused."""
         from src.album_builder import pair_songs_with_vocals
 
-        songs = [Path("song1.mp3")]
-        vocals = [Path("vocal1.wav"), Path("vocal2.wav"), Path("vocal3.wav")]
+        songs = [SONG1]
+        vocals = [VOCAL1, VOCAL2, VOCAL3]
 
         pairs = pair_songs_with_vocals(songs, vocals)
 
         self.assertEqual(len(pairs), 1)
-        self.assertEqual(pairs[0], (Path("song1.mp3"), Path("vocal1.wav")))
+        self.assertEqual(pairs[0], (SONG1, VOCAL1))
 
     def test_single_vocal_repeats_for_all_songs(self):
         """A single vocal repeats across all songs."""
         from src.album_builder import pair_songs_with_vocals
 
         songs = [Path(f"song{i}.mp3") for i in range(4)]
-        vocals = [Path("vocal.wav")]
+        vocals = [VOCAL_WAV]
 
         pairs = pair_songs_with_vocals(songs, vocals)
 
         self.assertEqual(len(pairs), 4)
         for pair in pairs:
-            self.assertEqual(pair[1], Path("vocal.wav"))
+            self.assertEqual(pair[1], VOCAL_WAV)
 
     def test_empty_songs_returns_empty(self):
         """No songs means no pairs."""
         from src.album_builder import pair_songs_with_vocals
 
-        pairs = pair_songs_with_vocals([], [Path("vocal.wav")])
+        pairs = pair_songs_with_vocals([], [VOCAL_WAV])
         self.assertEqual(pairs, [])
 
     def test_empty_vocals_returns_empty(self):
         """No vocals means no pairs."""
         from src.album_builder import pair_songs_with_vocals
 
-        pairs = pair_songs_with_vocals([Path("song.mp3")], [])
+        pairs = pair_songs_with_vocals([SONG_MP3], [])
         self.assertEqual(pairs, [])
 
     def test_preserves_song_order(self):
@@ -99,7 +113,7 @@ class TestPairSongsWithVocals(unittest.TestCase):
         from src.album_builder import pair_songs_with_vocals
 
         songs = [Path("c_song.mp3"), Path("a_song.mp3"), Path("b_song.mp3")]
-        vocals = [Path("v1.wav"), Path("v2.wav"), Path("v3.wav")]
+        vocals = [V1_WAV, Path("v2.wav"), Path("v3.wav")]
 
         pairs = pair_songs_with_vocals(songs, vocals)
 
@@ -191,8 +205,8 @@ class TestGenerateAlbumOutputPath(unittest.TestCase):
         from src.album_builder import generate_album_output_path
 
         result = generate_album_output_path(
-            song_path=Path("song.mp3"),
-            vocal_path=Path("vocal.wav"),
+            song_path=SONG_MP3,
+            vocal_path=VOCAL_WAV,
             output_dir=Path("/out"),
             output_format="wav",
             track_number=3,
@@ -205,8 +219,8 @@ class TestGenerateAlbumOutputPath(unittest.TestCase):
         from src.album_builder import generate_album_output_path
 
         result = generate_album_output_path(
-            song_path=Path("song.mp3"),
-            vocal_path=Path("vocal.wav"),
+            song_path=SONG_MP3,
+            vocal_path=VOCAL_WAV,
             output_dir=Path("/out"),
             output_format="flac",
             track_number=1,
@@ -235,131 +249,88 @@ class TestAlbumBuild(unittest.TestCase):
         create_test_voice(path, duration_seconds=10.0)
         return path
 
-    def test_album_build_creates_output_files(self):
-        """Album build creates one output file per song."""
+    def _run_album_build(self, **kwargs):
+        """Run album_build with common defaults."""
         from src.album_builder import album_build
 
+        defaults = {
+            "songs_dir": self.songs_dir,
+            "vocals_dir": self.vocals_dir,
+            "output_dir": self.output_dir,
+            "output_format": "wav",
+            "session_type": "standard",
+        }
+        defaults.update(kwargs)
+        return album_build(**defaults)
+
+    def test_album_build_creates_output_files(self):
+        """Album build creates one output file per song."""
         # Create 3 songs and 2 vocals
         for i in range(3):
             self._create_test_audio(self.songs_dir, f"song_{i+1}.wav")
         for i in range(2):
             self._create_test_audio(self.vocals_dir, f"vocal_{i+1}.wav")
 
-        results = album_build(
-            songs_dir=self.songs_dir,
-            vocals_dir=self.vocals_dir,
-            output_dir=self.output_dir,
-            output_format="wav",
-            session_type="standard",
-        )
+        results = self._run_album_build()
 
         self.assertEqual(len(results), 3)
         for path in results:
             self.assertTrue(path.exists())
-            self.assertTrue(path.stat().st_size > 0)
+            self.assertGreater(path.stat().st_size, 0)
 
     def test_album_build_with_single_vocal(self):
         """Single vocal is used for all songs."""
-        from src.album_builder import album_build
-
         for i in range(2):
             self._create_test_audio(self.songs_dir, f"song_{i+1}.wav")
         self._create_test_audio(self.vocals_dir, "my_voice.wav")
 
-        results = album_build(
-            songs_dir=self.songs_dir,
-            vocals_dir=self.vocals_dir,
-            output_dir=self.output_dir,
-            output_format="wav",
-            session_type="standard",
-        )
+        results = self._run_album_build()
 
         self.assertEqual(len(results), 2)
 
     def test_album_build_creates_output_dir(self):
         """Output directory is created if it doesn't exist."""
-        from src.album_builder import album_build
-
         self._create_test_audio(self.songs_dir, "song.wav")
         self._create_test_audio(self.vocals_dir, "vocal.wav")
 
         new_output = Path(self.temp_dir) / "new_dir" / "album"
 
-        results = album_build(
-            songs_dir=self.songs_dir,
-            vocals_dir=self.vocals_dir,
-            output_dir=new_output,
-            output_format="wav",
-            session_type="standard",
-        )
+        results = self._run_album_build(output_dir=new_output)
 
         self.assertTrue(new_output.exists())
         self.assertEqual(len(results), 1)
 
     def test_album_build_no_songs_returns_empty(self):
         """Empty songs directory returns empty results."""
-        from src.album_builder import album_build
-
         self._create_test_audio(self.vocals_dir, "vocal.wav")
 
-        results = album_build(
-            songs_dir=self.songs_dir,
-            vocals_dir=self.vocals_dir,
-            output_dir=self.output_dir,
-            output_format="wav",
-            session_type="standard",
-        )
+        results = self._run_album_build()
 
         self.assertEqual(results, [])
 
     def test_album_build_no_vocals_returns_empty(self):
         """Empty vocals directory returns empty results."""
-        from src.album_builder import album_build
-
         self._create_test_audio(self.songs_dir, "song.wav")
 
-        results = album_build(
-            songs_dir=self.songs_dir,
-            vocals_dir=self.vocals_dir,
-            output_dir=self.output_dir,
-            output_format="wav",
-            session_type="standard",
-        )
+        results = self._run_album_build()
 
         self.assertEqual(results, [])
 
     def test_album_build_with_vocal_files_list(self):
         """Can pass explicit list of vocal file paths instead of a directory."""
-        from src.album_builder import album_build
-
         self._create_test_audio(self.songs_dir, "song_1.wav")
         v1 = self._create_test_audio(self.vocals_dir, "vocal_1.wav")
 
-        results = album_build(
-            songs_dir=self.songs_dir,
-            vocal_files=[v1],
-            output_dir=self.output_dir,
-            output_format="wav",
-            session_type="standard",
-        )
+        results = self._run_album_build(vocal_files=[v1], vocals_dir=None)
 
         self.assertEqual(len(results), 1)
 
     def test_album_build_subliminal_from_voice(self):
         """Album build supports subliminal-from-voice option."""
-        from src.album_builder import album_build
-
         self._create_test_audio(self.songs_dir, "song.wav")
         self._create_test_audio(self.vocals_dir, "vocal.wav")
 
-        results = album_build(
-            songs_dir=self.songs_dir,
-            vocals_dir=self.vocals_dir,
-            output_dir=self.output_dir,
-            output_format="wav",
-            session_type="standard",
-            subliminal_from_voice=True,
-        )
+        results = self._run_album_build(subliminal_from_voice=True)
 
         self.assertEqual(len(results), 1)
         self.assertTrue(results[0].exists())
@@ -372,7 +343,7 @@ class TestAlbumCLIArgs(unittest.TestCase):
         """--album argument is recognized by the parser."""
         from hypnosis_audio_builder import parse_args
 
-        with patch("sys.argv", ["prog", "--album", "/some/dir", "--vocals-dir", "/vocals"]):
+        with patch(SYS_ARGV, ["prog", "--album", "/some/dir", "--vocals-dir", VOCALS_DIR_PATH]):
             args = parse_args()
             self.assertEqual(args.album, Path("/some/dir"))
 
@@ -380,21 +351,21 @@ class TestAlbumCLIArgs(unittest.TestCase):
         """--vocals-dir argument is recognized."""
         from hypnosis_audio_builder import parse_args
 
-        with patch("sys.argv", ["prog", "--album", "/songs", "--vocals-dir", "/vocals"]):
+        with patch(SYS_ARGV, ["prog", "--album", "/songs", "--vocals-dir", VOCALS_DIR_PATH]):
             args = parse_args()
-            self.assertEqual(args.vocals_dir, Path("/vocals"))
+            self.assertEqual(args.vocals_dir, Path(VOCALS_DIR_PATH))
 
     def test_vocals_arg_multiple_files(self):
         """--vocals accepts multiple file paths."""
         from hypnosis_audio_builder import parse_args
 
-        with patch("sys.argv", [
+        with patch(SYS_ARGV, [
             "prog", "--album", "/songs",
             "--vocals", "v1.wav", "v2.wav", "v3.wav"
         ]):
             args = parse_args()
             self.assertEqual(len(args.vocals), 3)
-            self.assertEqual(args.vocals[0], Path("v1.wav"))
+            self.assertEqual(args.vocals[0], V1_WAV)
 
 
 if __name__ == "__main__":
