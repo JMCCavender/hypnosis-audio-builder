@@ -148,6 +148,9 @@ Examples:
       --subliminal-from-voice \\
       --output morning_energy_final.mp3
 
+  Isochronic focus track (pulsed sawtooth at 15 Hz beta, works on speakers):
+    %(prog)s --voice script.wav --entrainment-mode isochronic --waveform sawtooth --theta-freq 15 -o focus.mp3
+
   List available session presets:
     %(prog)s --list-presets
 
@@ -223,7 +226,22 @@ Examples:
         type=float,
         default=200.0,
         metavar="FREQ",
-        help="Binaural beat carrier frequency in Hz (default: 200.0)"
+        help="Carrier frequency in Hz for binaural/isochronic tones (default: 200.0)"
+    )
+    audio_group.add_argument(
+        "--entrainment-mode",
+        choices=["binaural", "isochronic"],
+        default="binaural",
+        help="Brainwave entrainment method: 'binaural' (two-ear beat, headphones "
+             "required) or 'isochronic' (pulsed tone, works on speakers; a stronger "
+             "stimulus, good for alpha/beta focus sessions). Default: binaural"
+    )
+    audio_group.add_argument(
+        "--waveform",
+        choices=["sine", "sawtooth"],
+        default="sine",
+        help="Carrier waveform: 'sine' (smooth, unobtrusive) or 'sawtooth' "
+             "(bright, harmonically rich). Default: sine"
     )
     audio_group.add_argument(
         "--duration", "-d",
@@ -482,6 +500,8 @@ def save_config_file(args: argparse.Namespace, output_path: Path):
     config = {
         "theta_freq": args.theta_freq,
         "base_freq": args.base_freq,
+        "entrainment_mode": args.entrainment_mode,
+        "waveform": args.waveform,
         "intro_silence": args.intro_silence,
         "outro_silence": args.outro_silence,
         "voice_volume": args.voice_volume,
@@ -580,15 +600,18 @@ def main():
     builder = HypnosisAudioBuilder(
         mix_levels=mix_levels,
         sample_rate=args.sample_rate,
-        session_type=args.session
+        session_type=args.session,
+        entrainment_mode=args.entrainment_mode,
+        waveform=args.waveform
     )
-    
+
     # Override binaural config if theta-freq specified
     if args.theta_freq is not None:
         binaural_config = BinauralConfig(
             base_frequency=args.base_freq,
             theta_frequency=args.theta_freq,
-            sample_rate=args.sample_rate
+            sample_rate=args.sample_rate,
+            waveform=args.waveform
         )
         builder.set_binaural_config(binaural_config)
     
@@ -651,7 +674,8 @@ def main():
             print(f"Session:  {args.session} ({preset['description']})")
             print(f"Input:    {args.voice}")
             print(f"Output:   {args.output}")
-            print(f"Theta:    {builder.binaural_generator.config.theta_frequency} Hz")
+            print(f"Waves:    {builder.binaural_generator.config.theta_frequency} Hz "
+                  f"({args.entrainment_mode}, {args.waveform} carrier)")
             if args.subliminal_from_voice:
                 print(f"Subliminal: from voice (same affirmations)")
             print()
@@ -665,7 +689,11 @@ def main():
             )
             
             print(f"\n✓ Hypnosis audio created: {result}")
-            print(f"\nRecommended: Listen daily, morning and night, with headphones.")
+            if args.entrainment_mode == "isochronic":
+                print(f"\nRecommended: Listen daily, morning and night. "
+                      f"Isochronic tones work on speakers or headphones.")
+            else:
+                print(f"\nRecommended: Listen daily, morning and night, with headphones.")
             return 0
     
     except FileNotFoundError as e:

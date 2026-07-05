@@ -19,6 +19,7 @@ from src.audio_builder import (
     MixLevels,
     BinauralConfig,
     BinauralBeatGenerator,
+    IsochronicToneGenerator,
     AmbientMusicManager,
     create_test_voice,
 )
@@ -41,6 +42,18 @@ class TestBinauralConfig(unittest.TestCase):
     def test_custom_theta(self):
         config = BinauralConfig(theta_frequency=4.0)
         self.assertEqual(config.right_frequency, 204.0)
+
+    def test_default_waveform(self):
+        config = BinauralConfig()
+        self.assertEqual(config.waveform, "sine")
+
+    def test_sawtooth_waveform(self):
+        config = BinauralConfig(waveform="sawtooth")
+        self.assertEqual(config.waveform, "sawtooth")
+
+    def test_invalid_waveform(self):
+        with self.assertRaises(ValueError):
+            BinauralConfig(waveform="square")
 
 
 class TestMixLevels(unittest.TestCase):
@@ -90,6 +103,83 @@ class TestBinauralBeatGenerator(unittest.TestCase):
         # Should have received progress updates
         self.assertTrue(len(progress_values) > 0)
         # Final progress should be 1.0
+        self.assertEqual(progress_values[-1], 1.0)
+
+
+class TestIsochronicToneGenerator(unittest.TestCase):
+    """Test isochronic tone generation."""
+
+    def setUp(self):
+        self.config = BinauralConfig(theta_frequency=10.0)
+        self.generator = IsochronicToneGenerator(self.config)
+
+    def test_generate_short_audio(self):
+        audio = self.generator.generate(duration_seconds=1.0)
+        self.assertIsNotNone(audio)
+        self.assertAlmostEqual(len(audio), 1000, delta=50)
+
+    def test_generate_stereo_identical_channels(self):
+        # Isochronic tones carry the pulse in the audio itself, so both
+        # channels are identical (no two-ear trick, works on speakers)
+        audio = self.generator.generate(duration_seconds=1.0)
+        self.assertEqual(audio.channels, 2)
+        left, right = audio.split_to_mono()
+        self.assertEqual(left.raw_data, right.raw_data)
+
+    def test_pulse_rate_matches_config(self):
+        import numpy as np
+
+        audio = self.generator.generate(
+            duration_seconds=2.0,
+            fade_in_seconds=0.0,
+            fade_out_seconds=0.0
+        )
+        left, _ = audio.split_to_mono()
+        samples = np.abs(np.array(left.get_array_of_samples(), dtype=np.float64))
+
+        # Windowed peak envelope, then count pulses via threshold crossings
+        window = 220  # ~5ms at 44.1kHz
+        num_windows = len(samples) // window
+        envelope = samples[:num_windows * window].reshape(num_windows, window).max(axis=1)
+        threshold = envelope.max() * 0.5
+        above = envelope > threshold
+        rising_edges = int(np.sum(~above[:-1] & above[1:]))
+
+        # 10 Hz pulse over 2 seconds -> ~20 pulses
+        self.assertAlmostEqual(rising_edges, 20, delta=2)
+
+    def test_deep_amplitude_modulation(self):
+        import numpy as np
+
+        audio = self.generator.generate(
+            duration_seconds=1.0,
+            fade_in_seconds=0.0,
+            fade_out_seconds=0.0
+        )
+        left, _ = audio.split_to_mono()
+        samples = np.abs(np.array(left.get_array_of_samples(), dtype=np.float64))
+
+        window = 220
+        num_windows = len(samples) // window
+        envelope = samples[:num_windows * window].reshape(num_windows, window).max(axis=1)
+
+        # The gate should drop near-silent between pulses
+        self.assertLess(envelope.min(), envelope.max() * 0.1)
+
+    def test_sawtooth_carrier(self):
+        config = BinauralConfig(theta_frequency=15.0, waveform="sawtooth")
+        generator = IsochronicToneGenerator(config)
+        audio = generator.generate(duration_seconds=1.0)
+        self.assertIsNotNone(audio)
+        self.assertEqual(audio.channels, 2)
+
+    def test_progress_callback(self):
+        progress_values = []
+        self.generator.generate(
+            duration_seconds=1.0,
+            progress_callback=progress_values.append
+        )
+        self.assertTrue(len(progress_values) > 0)
         self.assertEqual(progress_values[-1], 1.0)
 
 
@@ -175,6 +265,36 @@ class TestHypnosisAudioBuilder(unittest.TestCase):
         self.assertTrue(result.exists())
         self.assertTrue(result.stat().st_size > 0)
     
+    def test_isochronic_mode(self):
+        builder = HypnosisAudioBuilder(entrainment_mode="isochronic")
+        self.assertIsInstance(builder.binaural_generator, IsochronicToneGenerator)
+
+        track = builder.generate_binaural_track(
+            duration_seconds=2.0,
+            theta_frequency=15.0
+        )
+        self.assertEqual(track.name, "binaural")
+        self.assertIsNotNone(track.audio)
+
+    def test_invalid_entrainment_mode(self):
+        with self.assertRaises(ValueError):
+            HypnosisAudioBuilder(entrainment_mode="subsonic")
+
+    def test_waveform_passed_to_generator(self):
+        builder = HypnosisAudioBuilder(waveform="sawtooth")
+        self.assertEqual(builder.binaural_generator.config.waveform, "sawtooth")
+
+    def test_preset_config_not_mutated(self):
+        # Builder overrides must never leak into the shared SESSION_PRESETS
+        preset_config = HypnosisAudioBuilder.SESSION_PRESETS["standard"]["binaural"]
+        original_freq = preset_config.theta_frequency
+
+        builder = HypnosisAudioBuilder(waveform="sawtooth")
+        builder.generate_binaural_track(duration_seconds=1.0, theta_frequency=12.0)
+
+        self.assertEqual(preset_config.theta_frequency, original_freq)
+        self.assertEqual(preset_config.waveform, "sine")
+
     def test_custom_mix_levels(self):
         custom_levels = MixLevels(
             voice=-3.0,

@@ -21,7 +21,7 @@ import math
 import re
 import struct
 import wave
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Optional, Callable, List, Tuple
 
@@ -243,23 +243,37 @@ class ScriptValidator:
 @dataclass
 class BinauralConfig:
     """
-    Configuration for binaural beat generation.
-    
+    Configuration for entrainment tone generation (binaural or isochronic).
+
     Binaural beats work by playing slightly different frequencies in each ear.
     The brain perceives the difference as a pulsing beat at the target frequency.
-    
+    Requires headphones.
+
+    Isochronic tones pulse a single carrier on and off at the target frequency.
+    The pulse is in the audio itself, so speakers work fine.
+
     Brainwave Frequency Ranges:
     - Delta (0.5-4 Hz): Deep sleep, healing, unconscious mind
     - Theta (4-8 Hz): Deep meditation, creativity, subconscious access *
     - Alpha (8-13 Hz): Relaxation, light meditation, calm focus
     - Beta (13-30 Hz): Alert, active thinking, concentration
     - Gamma (30-100 Hz): Peak awareness, insight, information processing
-    
+
     * Theta is ideal for self-hypnosis as it opens access to the subconscious.
     """
+    VALID_WAVEFORMS = ("sine", "sawtooth")
+
     base_frequency: float = 200.0  # Hz - carrier frequency (what you "hear")
     theta_frequency: float = 6.0   # Hz - desired brainwave frequency
     sample_rate: int = 44100
+    waveform: str = "sine"         # Carrier shape: "sine" (smooth) or "sawtooth" (bright, harmonically rich)
+
+    def __post_init__(self):
+        if self.waveform not in self.VALID_WAVEFORMS:
+            raise ValueError(
+                f"Invalid waveform '{self.waveform}'. "
+                f"Choose from: {', '.join(self.VALID_WAVEFORMS)}"
+            )
     
     # Theta sub-ranges for different purposes (4-8 Hz)
     THETA_DEEP = 4.0      # Deep meditation, near-sleep, subconscious access
@@ -330,12 +344,73 @@ class AudioTrack:
         return self.duration_ms / 1000.0
 
 
-class BinauralBeatGenerator:
-    """Generates binaural beats using sine wave synthesis."""
-    
+class ToneGeneratorBase:
+    """Shared synthesis helpers for entrainment tone generators."""
+
     def __init__(self, config: BinauralConfig):
         self.config = config
-    
+
+    def _synthesize_carrier(self, frequency: float, t: np.ndarray) -> np.ndarray:
+        """Synthesize the carrier wave using the configured waveform."""
+        if self.config.waveform == "sawtooth":
+            # Ramp wave: bright, harmonically rich, more attention-grabbing
+            return (2.0 * ((frequency * t) % 1.0) - 1.0).astype(np.float32)
+        # Default: pure sine, smooth and unobtrusive
+        return np.sin(2 * np.pi * frequency * t)
+
+    def _create_envelope(
+        self,
+        num_samples: int,
+        fade_in_seconds: float,
+        fade_out_seconds: float,
+        sample_rate: int
+    ) -> np.ndarray:
+        """Create amplitude envelope with fade in/out."""
+        envelope = np.ones(num_samples, dtype=np.float32)
+
+        # Calculate fade samples, capping at half the total length each
+        max_fade_samples = num_samples // 2
+
+        # Fade in
+        fade_in_samples = min(int(fade_in_seconds * sample_rate), max_fade_samples)
+        if fade_in_samples > 0:
+            fade_in = np.linspace(0, 1, fade_in_samples, dtype=np.float32)
+            # Apply smooth (cosine) curve
+            fade_in = (1 - np.cos(fade_in * np.pi)) / 2
+            envelope[:fade_in_samples] = fade_in
+
+        # Fade out
+        fade_out_samples = min(int(fade_out_seconds * sample_rate), max_fade_samples)
+        if fade_out_samples > 0:
+            fade_out = np.linspace(1, 0, fade_out_samples, dtype=np.float32)
+            # Apply smooth (cosine) curve
+            fade_out = (1 + np.cos((1 - fade_out) * np.pi)) / 2
+            envelope[-fade_out_samples:] = fade_out
+
+        return envelope
+
+    def _numpy_to_audiosegment(
+        self,
+        samples: np.ndarray,
+        sample_rate: int,
+        channels: int = 2
+    ) -> AudioSegment:
+        """Convert numpy array to AudioSegment."""
+        buffer = io.BytesIO()
+
+        with wave.open(buffer, 'wb') as wav_file:
+            wav_file.setnchannels(channels)
+            wav_file.setsampwidth(2)  # 16-bit
+            wav_file.setframerate(sample_rate)
+            wav_file.writeframes(samples.tobytes())
+
+        buffer.seek(0)
+        return AudioSegment.from_wav(buffer)
+
+
+class BinauralBeatGenerator(ToneGeneratorBase):
+    """Generates binaural beats using waveform synthesis (requires headphones)."""
+
     def generate(
         self, 
         duration_seconds: float,
@@ -358,7 +433,8 @@ class BinauralBeatGenerator:
         logger.info(
             f"Generating binaural beats: {duration_seconds:.1f}s, "
             f"base={self.config.base_frequency}Hz, "
-            f"theta={self.config.theta_frequency}Hz"
+            f"theta={self.config.theta_frequency}Hz, "
+            f"waveform={self.config.waveform}"
         )
         
         sample_rate = self.config.sample_rate
@@ -367,21 +443,21 @@ class BinauralBeatGenerator:
         # Time array
         t = np.linspace(0, duration_seconds, num_samples, dtype=np.float32)
         
-        # Generate sine waves for left and right channels
+        # Generate waveforms for left and right channels
         left_freq = self.config.left_frequency
         right_freq = self.config.right_frequency
-        
+
         if progress_callback:
             progress_callback(0.2)
-        
+
         # Generate left channel (base frequency)
-        left_channel = np.sin(2 * np.pi * left_freq * t)
-        
+        left_channel = self._synthesize_carrier(left_freq, t)
+
         if progress_callback:
             progress_callback(0.4)
-        
+
         # Generate right channel (base + theta frequency)
-        right_channel = np.sin(2 * np.pi * right_freq * t)
+        right_channel = self._synthesize_carrier(right_freq, t)
         
         if progress_callback:
             progress_callback(0.6)
@@ -417,55 +493,99 @@ class BinauralBeatGenerator:
         
         logger.info("Binaural beat generation complete")
         return audio
-    
-    def _create_envelope(
-        self, 
-        num_samples: int, 
-        fade_in_seconds: float, 
-        fade_out_seconds: float,
-        sample_rate: int
-    ) -> np.ndarray:
-        """Create amplitude envelope with fade in/out."""
-        envelope = np.ones(num_samples, dtype=np.float32)
-        
-        # Calculate fade samples, capping at half the total length each
-        max_fade_samples = num_samples // 2
-        
-        # Fade in
-        fade_in_samples = min(int(fade_in_seconds * sample_rate), max_fade_samples)
-        if fade_in_samples > 0:
-            fade_in = np.linspace(0, 1, fade_in_samples, dtype=np.float32)
-            # Apply smooth (cosine) curve
-            fade_in = (1 - np.cos(fade_in * np.pi)) / 2
-            envelope[:fade_in_samples] = fade_in
-        
-        # Fade out
-        fade_out_samples = min(int(fade_out_seconds * sample_rate), max_fade_samples)
-        if fade_out_samples > 0:
-            fade_out = np.linspace(1, 0, fade_out_samples, dtype=np.float32)
-            # Apply smooth (cosine) curve
-            fade_out = (1 + np.cos((1 - fade_out) * np.pi)) / 2
-            envelope[-fade_out_samples:] = fade_out
-        
-        return envelope
-    
-    def _numpy_to_audiosegment(
-        self, 
-        samples: np.ndarray, 
-        sample_rate: int, 
-        channels: int = 2
+
+
+class IsochronicToneGenerator(ToneGeneratorBase):
+    """
+    Generates isochronic tones: a single carrier pulsed on/off at the
+    target brainwave frequency.
+
+    Unlike binaural beats, the pulse exists in the audio itself rather than
+    being constructed in the brain from two ears, so isochronic tones work
+    through speakers as well as headphones. The distinct on/off pulses are
+    generally considered a stronger entrainment stimulus, which makes them
+    a good fit for alpha/beta focus sessions (13+ Hz).
+    """
+
+    # Exponent applied to the raised-cosine pulse. Higher values sharpen the
+    # on/off contrast while keeping the transitions click-free.
+    PULSE_SHARPNESS = 2.0
+
+    def generate(
+        self,
+        duration_seconds: float,
+        fade_in_seconds: float = 3.0,
+        fade_out_seconds: float = 3.0,
+        progress_callback: Optional[Callable[[float], None]] = None
     ) -> AudioSegment:
-        """Convert numpy array to AudioSegment."""
-        buffer = io.BytesIO()
-        
-        with wave.open(buffer, 'wb') as wav_file:
-            wav_file.setnchannels(channels)
-            wav_file.setsampwidth(2)  # 16-bit
-            wav_file.setframerate(sample_rate)
-            wav_file.writeframes(samples.tobytes())
-        
-        buffer.seek(0)
-        return AudioSegment.from_wav(buffer)
+        """
+        Generate isochronic tone audio (identical in both stereo channels).
+
+        Args:
+            duration_seconds: Length of the audio in seconds
+            fade_in_seconds: Duration of fade-in effect
+            fade_out_seconds: Duration of fade-out effect
+            progress_callback: Optional callback for progress updates (0.0-1.0)
+
+        Returns:
+            AudioSegment with isochronic tones
+        """
+        logger.info(
+            f"Generating isochronic tones: {duration_seconds:.1f}s, "
+            f"carrier={self.config.base_frequency}Hz, "
+            f"pulse={self.config.theta_frequency}Hz, "
+            f"waveform={self.config.waveform}"
+        )
+
+        sample_rate = self.config.sample_rate
+        num_samples = int(duration_seconds * sample_rate)
+
+        # Time array
+        t = np.linspace(0, duration_seconds, num_samples, dtype=np.float32)
+
+        if progress_callback:
+            progress_callback(0.2)
+
+        # Carrier tone at the base frequency
+        carrier = self._synthesize_carrier(self.config.base_frequency, t)
+
+        if progress_callback:
+            progress_callback(0.4)
+
+        # Pulse the carrier at the brainwave frequency using a smooth
+        # raised-cosine gate (fully off between pulses, no clicks)
+        pulse = (0.5 - 0.5 * np.cos(2 * np.pi * self.config.theta_frequency * t))
+        pulse = pulse ** self.PULSE_SHARPNESS
+        signal = carrier * pulse
+
+        if progress_callback:
+            progress_callback(0.6)
+
+        # Apply fade in/out envelope
+        envelope = self._create_envelope(
+            num_samples,
+            fade_in_seconds,
+            fade_out_seconds,
+            sample_rate
+        )
+        signal *= envelope
+
+        if progress_callback:
+            progress_callback(0.8)
+
+        # Convert to 16-bit integer samples, identical in both channels
+        mono_int = (signal * 32767 * 0.8).astype(np.int16)
+        stereo = np.empty(num_samples * 2, dtype=np.int16)
+        stereo[0::2] = mono_int
+        stereo[1::2] = mono_int
+
+        audio = self._numpy_to_audiosegment(stereo, sample_rate, channels=2)
+
+        if progress_callback:
+            progress_callback(1.0)
+
+        logger.info("Isochronic tone generation complete")
+        return audio
 
 
 class SubliminalProcessor:
@@ -932,29 +1052,51 @@ class HypnosisAudioBuilder:
         }
     }
     
+    # Available entrainment tone generators
+    ENTRAINMENT_MODES = {
+        "binaural": BinauralBeatGenerator,
+        "isochronic": IsochronicToneGenerator,
+    }
+
     def __init__(
         self,
         mix_levels: Optional[MixLevels] = None,
         sample_rate: int = 44100,
-        session_type: str = "standard"
+        session_type: str = "standard",
+        entrainment_mode: str = "binaural",
+        waveform: str = "sine"
     ):
         """
         Initialize the audio builder.
-        
+
         Args:
             mix_levels: Volume levels for each layer (overrides session preset)
             sample_rate: Target sample rate for output
             session_type: Preset type ("morning", "night", "sleep", "subliminal", "standard")
+            entrainment_mode: "binaural" (beats, headphones required) or
+                "isochronic" (pulsed tone, works on speakers)
+            waveform: Carrier waveform, "sine" (smooth) or "sawtooth" (bright)
         """
+        if entrainment_mode not in self.ENTRAINMENT_MODES:
+            raise ValueError(
+                f"Invalid entrainment mode '{entrainment_mode}'. "
+                f"Choose from: {', '.join(self.ENTRAINMENT_MODES)}"
+            )
+
         # Get preset defaults
         preset = self.SESSION_PRESETS.get(session_type, self.SESSION_PRESETS["standard"])
-        
+
         self.mix_levels = mix_levels or preset["mix"]
         self.sample_rate = sample_rate
         self.session_type = session_type
+        self.entrainment_mode = entrainment_mode
         self._preset = preset
-        
-        self.binaural_generator = BinauralBeatGenerator(preset["binaural"])
+
+        # Copy the preset config so per-build overrides never mutate the
+        # shared SESSION_PRESETS entries
+        binaural_config = replace(preset["binaural"], waveform=waveform)
+        generator_cls = self.ENTRAINMENT_MODES[entrainment_mode]
+        self.binaural_generator = generator_cls(binaural_config)
         self.ambient_manager = AmbientMusicManager()
         self.subliminal_processor = SubliminalProcessor()
         self.script_validator = ScriptValidator()

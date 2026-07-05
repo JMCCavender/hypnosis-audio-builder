@@ -29,6 +29,9 @@ python hypnosis_audio_builder.py --voice script.wav --session active --sublimina
 # Custom brainwave frequency (4-30 Hz range)
 python hypnosis_audio_builder.py --voice script.wav --theta-freq 10 --subliminal-from-voice -o alpha.mp3
 
+# Isochronic tones instead of binaural beats (pulsed carrier, works on speakers)
+python hypnosis_audio_builder.py --voice script.wav --entrainment-mode isochronic --waveform sawtooth --theta-freq 15 -o focus.mp3
+
 # Open interactive frequency explorer
 python hypnosis_audio_builder.py --open-frequency-guide
 
@@ -73,11 +76,18 @@ python tests/test_audio_builder.py  # alternative
 - `list_presets()` - Returns formatted preset descriptions
 - Manages `MixLevels`, `BinauralConfig`, and all track generation
 
-**BinauralBeatGenerator** - Generates stereo binaural beats using sine wave synthesis
+**BinauralBeatGenerator** - Generates stereo binaural beats (subclass of ToneGeneratorBase)
 - Left ear: base frequency (e.g., 200 Hz)
 - Right ear: base + theta frequency (e.g., 206 Hz for 6 Hz theta)
 - Applies cosine fade envelope for smooth in/out
 - Uses numpy for waveform generation, converts to pydub AudioSegment
+- Carrier waveform selectable via `BinauralConfig.waveform`: "sine" or "sawtooth"
+
+**IsochronicToneGenerator** - Generates isochronic tones (subclass of ToneGeneratorBase)
+- Single carrier at base frequency, pulsed on/off at the brainwave frequency
+- Raised-cosine pulse gate (click-free), identical in both channels
+- Works on speakers (no headphones required, unlike binaural beats)
+- Selected via `HypnosisAudioBuilder(entrainment_mode="isochronic")` or CLI `--entrainment-mode isochronic`
 
 **SubliminalProcessor** - Creates subliminal tracks at -35 dB (near-inaudible)
 - `create_from_voice()` - Copies voice track, applies low/high-pass EQ, loops to duration (recommended)

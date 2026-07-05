@@ -1,6 +1,6 @@
 # Hypnosis Audio Builder
 
-A Python-based audio production tool for creating self-hypnosis audio tracks with binaural beats (theta, alpha, and beta waves), ambient music, and subliminal messaging.
+A Python-based audio production tool for creating self-hypnosis audio tracks with brainwave entrainment tones (binaural beats or isochronic pulses — theta, alpha, and beta waves), ambient music, and subliminal messaging.
 
 ## The Self-Hypnosis Creation Workflow
 
@@ -113,7 +113,7 @@ python hypnosis_audio_builder.py --test
 | Layer | Volume | Purpose |
 |-------|--------|---------|
 | **Voice** | 0 dB | Main affirmations to conscious mind |
-| **Binaural Beats** | -10 dB | Brainwave entrainment (theta/alpha/beta) |
+| **Brainwave Tones** | -10 dB | Binaural beats or isochronic pulses (theta/alpha/beta) |
 | **Ambient Music** | -20 dB | Calming atmosphere |
 | **Subliminal** | -35 dB | Same affirmations beneath conscious hearing |
 
@@ -130,6 +130,21 @@ python hypnosis_audio_builder.py --test
 
 **Use headphones!** Binaural beats require separate frequencies per ear.
 
+### Entrainment Modes
+
+| Mode | How It Works | Headphones? |
+|------|--------------|-------------|
+| **binaural** (default) | Slightly different frequency per ear; the brain constructs the beat | Required |
+| **isochronic** | Single carrier pulsed on/off at the target frequency | Optional — works on speakers |
+
+Isochronic tones are a stronger, more distinct stimulus and pair well with alpha/beta focus frequencies (13+ Hz). Both modes support a `--waveform` option: `sine` (smooth, default) or `sawtooth` (bright, harmonically rich).
+
+```bash
+# Isochronic focus track: pulsed sawtooth at 15 Hz beta, works on speakers
+python hypnosis_audio_builder.py --voice script.wav \
+  --entrainment-mode isochronic --waveform sawtooth --theta-freq 15 -o focus.mp3
+```
+
 ---
 
 ## Command Reference
@@ -143,6 +158,8 @@ python hypnosis_audio_builder.py --test
 
 # Customize
 --theta-freq FREQ         Override frequency (4-30 Hz: theta/alpha/beta)
+--entrainment-mode MODE   binaural (default) or isochronic (works on speakers)
+--waveform SHAPE          sine (default) or sawtooth carrier
 --ambient-music FILE      Custom ambient
 --validate-script FILE    Check affirmation script
 
@@ -214,7 +231,7 @@ builder.build(
 ### Listening
 - Morning and night, same track
 - 21-30 days for best results
-- **Headphones required** for binaural effect
+- **Headphones required** for binaural effect (isochronic mode works on speakers)
 - Never while driving
 
 ---
