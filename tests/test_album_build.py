@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.audio_builder import create_test_voice
+from src.audio_builder import create_test_voice, HypnosisAudioBuilder
 
 # Shared test path constants
 SONG1 = Path("song1.mp3")
@@ -334,6 +334,38 @@ class TestAlbumBuild(unittest.TestCase):
 
         self.assertEqual(len(results), 1)
         self.assertTrue(results[0].exists())
+
+    def test_album_build_forwards_entrainment_options(self):
+        """entrainment_mode and waveform are passed through to the builder."""
+        from src.album_builder import album_build
+        from src.audio_builder import IsochronicToneGenerator
+
+        self._create_test_audio(self.songs_dir, "song.wav")
+        self._create_test_audio(self.vocals_dir, "vocal.wav")
+
+        seen = {}
+        original_build = HypnosisAudioBuilder.build
+
+        def spy_build(self, *args, **kwargs):
+            seen["mode"] = self.entrainment_mode
+            seen["generator"] = type(self.binaural_generator)
+            seen["waveform"] = self.binaural_generator.config.waveform
+            return original_build(self, *args, **kwargs)
+
+        with patch.object(HypnosisAudioBuilder, "build", spy_build):
+            results = album_build(
+                songs_dir=self.songs_dir,
+                vocals_dir=self.vocals_dir,
+                output_dir=self.output_dir,
+                output_format="wav",
+                entrainment_mode="isochronic",
+                waveform="sawtooth",
+            )
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(seen["mode"], "isochronic")
+        self.assertIs(seen["generator"], IsochronicToneGenerator)
+        self.assertEqual(seen["waveform"], "sawtooth")
 
 
 class TestAlbumCLIArgs(unittest.TestCase):

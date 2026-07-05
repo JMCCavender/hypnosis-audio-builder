@@ -650,6 +650,8 @@ def main():
                 subliminal_from_voice=args.subliminal_from_voice,
                 mix_levels=mix_levels,
                 sample_rate=args.sample_rate,
+                entrainment_mode=args.entrainment_mode,
+                waveform=args.waveform,
                 quiet=args.quiet,
             )
             print(f"\nAlbum build complete: {len(results)} tracks created")

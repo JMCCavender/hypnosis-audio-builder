@@ -1,0 +1,115 @@
+{
+  "_comment": "License-free classical music catalog for Hypnosis Audio Builder. All entries are public-domain COMPOSITIONS. The recordings referenced come from Musopen's public-domain release and the Internet Archive's Musopen collection. Verify the specific recording's license note on the source page before commercial use. The archive_query field is used by fetch_music.py to resolve and download a real audio file from the Internet Archive at runtime.",
+  "version": 1,
+  "license_note": "Public-domain compositions. Recordings sourced from Musopen (public domain) and the Internet Archive Musopen collection (https://archive.org/details/musopen).",
+  "tracks": [
+    {
+      "title": "Spring (La Primavera), Op. 8 No. 1",
+      "composer": "Antonio Vivaldi",
+      "year": 1725,
+      "moods": ["bright", "uplifting"],
+      "note": "Sunny, bird-song opening of The Four Seasons.",
+      "source": { "page": "https://musopen.org/music/2073-the-four-seasons/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Vivaldi AND (Spring OR Primavera)"
+    },
+    {
+      "title": "Eine kleine Nachtmusik, K.525 - Allegro",
+      "composer": "Wolfgang Amadeus Mozart",
+      "year": 1787,
+      "moods": ["bright", "playful"],
+      "note": "Buoyant, instantly recognizable serenade.",
+      "source": { "page": "https://archive.org/details/MozartEineKleineNachtmusikAllegro", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Mozart AND Nachtmusik"
+    },
+    {
+      "title": "Symphony No. 9 - Ode to Joy",
+      "composer": "Ludwig van Beethoven",
+      "year": 1824,
+      "moods": ["triumphant", "uplifting"],
+      "note": "The definitive anthem of joy.",
+      "source": { "page": "https://musopen.org/music/280-symphony-no-9-in-d-minor-op-125/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Beethoven AND (Symphony No 9 OR Ode to Joy)"
+    },
+    {
+      "title": "Brandenburg Concerto No. 3, BWV 1048",
+      "composer": "Johann Sebastian Bach",
+      "year": 1721,
+      "moods": ["energetic", "bright"],
+      "note": "Bustling, optimistic strings.",
+      "source": { "page": "https://musopen.org/music/2567-brandenburg-concerto-no-3-in-g-major-bwv-1048/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Bach AND Brandenburg AND 3"
+    },
+    {
+      "title": "Water Music - Alla Hornpipe",
+      "composer": "George Frideric Handel",
+      "year": 1717,
+      "moods": ["triumphant", "energetic"],
+      "note": "Regal, celebratory brass and strings.",
+      "source": { "page": "https://musopen.org/music/2413-water-music-suite-in-f-major-hwv-348/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Handel AND Water Music"
+    },
+    {
+      "title": "The Four Seasons - Autumn, Allegro",
+      "composer": "Antonio Vivaldi",
+      "year": 1725,
+      "moods": ["playful", "energetic"],
+      "note": "A joyful harvest dance.",
+      "source": { "page": "https://musopen.org/music/2073-the-four-seasons/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Vivaldi AND Autumn"
+    },
+    {
+      "title": "Symphony No. 6 'Pastoral' - Awakening of Cheerful Feelings",
+      "composer": "Ludwig van Beethoven",
+      "year": 1808,
+      "moods": ["serene", "uplifting"],
+      "note": "Cheerful feelings on arriving in the country.",
+      "source": { "page": "https://musopen.org/music/43-symphony-no-6-in-f-major-op-68-pastoral/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Beethoven AND (Pastoral OR Symphony No 6)"
+    },
+    {
+      "title": "Clarinet Concerto in A, K.622 - Rondo",
+      "composer": "Wolfgang Amadeus Mozart",
+      "year": 1791,
+      "moods": ["serene", "bright"],
+      "note": "Warm, gently optimistic finale.",
+      "source": { "page": "https://musopen.org/music/3556-clarinet-concerto-in-a-major-k-622/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Mozart AND Clarinet Concerto"
+    },
+    {
+      "title": "Canon in D",
+      "composer": "Johann Pachelbel",
+      "year": 1680,
+      "moods": ["serene", "uplifting"],
+      "note": "Hopeful, endlessly reassuring progression.",
+      "source": { "page": "https://musopen.org/music/2138-canon-in-d/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Pachelbel AND Canon"
+    },
+    {
+      "title": "Spring Song, Op. 62 No. 6",
+      "composer": "Felix Mendelssohn",
+      "year": 1844,
+      "moods": ["bright", "playful"],
+      "note": "Light, springtime piano miniature.",
+      "source": { "page": "https://musopen.org/music/2296-songs-without-words/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Mendelssohn AND Spring Song"
+    },
+    {
+      "title": "Slavonic Dance No. 1 in C, Op. 46",
+      "composer": "Antonin Dvorak",
+      "year": 1878,
+      "moods": ["energetic", "triumphant"],
+      "note": "Exuberant folk-dance drive.",
+      "source": { "page": "https://musopen.org/music/3577-slavonic-dances-op-46/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Dvorak AND Slavonic"
+    },
+    {
+      "title": "Morning Mood (Peer Gynt Suite No. 1)",
+      "composer": "Edvard Grieg",
+      "year": 1875,
+      "moods": ["serene", "uplifting"],
+      "note": "Sunrise calm blossoming into warmth.",
+      "source": { "page": "https://musopen.org/music/2379-peer-gynt-suite-no-1-op-46/", "download": null },
+      "archive_query": "collection:(musopen OR musopen-dvd) AND Grieg AND (Morning OR Peer Gynt)"
+    }
+  ]
+}
