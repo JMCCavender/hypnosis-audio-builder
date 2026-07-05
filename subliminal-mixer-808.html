@@ -847,6 +847,241 @@
             background: #fbbf24;
             box-shadow: 0 0 8px #fbbf24;
         }
+
+        /* ===== VOICE RECORDER ===== */
+        .recorder {
+            margin-top: 10px;
+            padding: 12px;
+            background: #161616;
+            border: 1px solid #2d2d2d;
+            border-radius: 8px;
+        }
+
+        .recorder-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .rec-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #ef4444;
+            background: linear-gradient(180deg, #3a2a2a 0%, #2a1f1f 100%);
+            color: #f87171;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .rec-btn:hover { box-shadow: 0 0 14px rgba(239, 68, 68, 0.4); }
+        .rec-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+        .rec-btn.recording {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            animation: rec-pulse 1.2s ease-in-out infinite;
+        }
+
+        @keyframes rec-pulse {
+            0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 0 22px rgba(239, 68, 68, 0.9); }
+        }
+
+        .rec-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .rec-btn.recording .rec-dot { animation: rec-blink 0.8s steps(1) infinite; }
+        @keyframes rec-blink { 50% { opacity: 0.2; } }
+
+        .rec-time {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e0e0e0;
+            min-width: 54px;
+        }
+
+        .rec-meter {
+            flex: 1;
+            min-width: 80px;
+            height: 8px;
+            background: #0d0d0d;
+            border-radius: 4px;
+            overflow: hidden;
+            border: 1px solid #2d2d2d;
+        }
+
+        .rec-meter-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4ade80 0%, #fbbf24 70%, #ef4444 100%);
+            transition: width 0.05s linear;
+        }
+
+        .rec-secondary-btn {
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: 1px solid #444;
+            background: #222;
+            color: #bbb;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .rec-secondary-btn:hover { border-color: #ff6b35; color: #fff; }
+        .rec-secondary-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        .rec-hint {
+            font-size: 0.65rem;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        .rec-hint.error { color: #f87171; }
+
+        /* ===== MUSIC LIBRARY ===== */
+        .library-section {
+            margin: 14px 20px 0;
+            padding: 14px;
+            background: linear-gradient(180deg, #202020 0%, #191919 100%);
+            border: 1px solid #333;
+            border-radius: 10px;
+        }
+
+        .library-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .library-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #a3e635;
+        }
+
+        .library-sub {
+            font-size: 0.62rem;
+            color: #777;
+        }
+
+        .library-filter {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .mood-chip {
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid #3a3a3a;
+            background: #1a1a1a;
+            color: #999;
+            font-size: 0.62rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .mood-chip:hover { border-color: #a3e635; color: #d9f99d; }
+        .mood-chip.active { background: #365314; border-color: #a3e635; color: #ecfccb; }
+
+        .library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 10px;
+        }
+
+        .lib-card {
+            padding: 10px 12px;
+            background: #141414;
+            border: 1px solid #2b2b2b;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .lib-card-title { font-size: 0.78rem; font-weight: 700; color: #e8e8e8; }
+        .lib-card-composer { font-size: 0.66rem; color: #8b8b8b; }
+
+        .lib-card-moods { display: flex; gap: 4px; flex-wrap: wrap; }
+        .lib-mood-tag {
+            font-size: 0.55rem;
+            color: #a3e635;
+            background: #26340f;
+            padding: 1px 6px;
+            border-radius: 8px;
+            text-transform: uppercase;
+        }
+
+        .lib-card-meta { font-size: 0.58rem; color: #5f8f2f; }
+
+        .lib-card-actions { display: flex; gap: 6px; margin-top: 2px; }
+
+        .lib-btn {
+            flex: 1;
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid #3a3a3a;
+            background: #1e1e1e;
+            color: #cfcfcf;
+            font-size: 0.64rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .lib-btn:hover { border-color: #a3e635; color: #fff; }
+        .lib-btn.primary { border-color: #4d7c0f; color: #d9f99d; }
+        .lib-btn.primary:hover { background: #365314; }
+        .lib-btn.loading { opacity: 0.6; cursor: wait; }
+
+        .library-note {
+            font-size: 0.6rem;
+            color: #666;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        .library-note a { color: #a3e635; }
+
+        .library-url-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .library-url-input {
+            flex: 1;
+            padding: 6px 10px;
+            background: #0d0d0d;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #ddd;
+            font-size: 0.68rem;
+        }
     </style>
 </head>
 <body>
@@ -903,7 +1138,39 @@
                     <button class="file-btn" id="voiceBtn">Load Vocals</button>
                     <span class="file-name empty" id="voiceName">No files selected</span>
                 </div>
+
+                <!-- Direct Voice Recorder -->
+                <div class="recorder">
+                    <div class="recorder-row">
+                        <button class="rec-btn" id="recBtn" title="Record affirmations with your microphone">
+                            <span class="rec-dot"></span>
+                            <span id="recBtnText">RECORD</span>
+                        </button>
+                        <span class="rec-time" id="recTime">0:00</span>
+                        <div class="rec-meter"><div class="rec-meter-fill" id="recMeter"></div></div>
+                        <button class="rec-secondary-btn" id="recUseBtn" disabled title="Use this recording as the vocal track">USE AS VOCALS</button>
+                        <button class="rec-secondary-btn" id="recDownloadBtn" disabled title="Download the recording">SAVE</button>
+                    </div>
+                    <div class="rec-hint" id="recHint">Record your affirmations directly — no external app needed. Recordings become the vocal track instantly.</div>
+                </div>
             </div>
+        </div>
+
+        <!-- License-Free Classical Music Library -->
+        <div class="library-section" id="librarySection">
+            <div class="library-header">
+                <div>
+                    <div class="library-title">🎼 CLASSICAL MUSIC LIBRARY</div>
+                    <div class="library-sub">Public-domain / CC0 recordings — free to use in your tracks</div>
+                </div>
+                <div class="library-filter" id="libraryFilter"></div>
+            </div>
+            <div class="library-grid" id="libraryGrid"></div>
+            <div class="library-url-row">
+                <input type="text" class="library-url-input" id="libraryUrl" placeholder="…or paste a direct audio URL (e.g. an archive.org .mp3) and load it">
+                <button class="lib-btn primary" id="libraryUrlBtn" style="flex:0 0 auto;padding:6px 14px">LOAD URL</button>
+            </div>
+            <div class="library-note" id="libraryNote"></div>
         </div>
 
         <!-- Track List (Album Mode) -->
@@ -1213,6 +1480,11 @@
             binauralGain.gain.setTargetAtTime(dbToGain(binauralDb), audioCtx.currentTime, 0.02);
             subliminalGain.gain.setTargetAtTime(dbToGain(subliminalDb), audioCtx.currentTime, 0.02);
             energyGain.gain.setTargetAtTime(dbToGain(energyDb), audioCtx.currentTime, 0.02);
+
+            // Keep the live subliminal filter consistent with the export path
+            if (subliminalFilter) {
+                subliminalFilter.frequency.setTargetAtTime(subliminalFilterFreq(), audioCtx.currentTime, 0.02);
+            }
         }
 
         // Update binaural frequencies
@@ -1344,58 +1616,86 @@
             }
         }
 
-        // Load audio file
+        // ===== MULTI-TRACK STATE (album support) =====
+        // Loaded tracks. musicBuffer / voiceBuffer always point at the
+        // currently active selection so the existing play/export paths work
+        // unchanged whether one file or many are loaded.
+        let musicTracks = [];   // [{ name, buffer }]
+        let voiceTracks = [];   // [{ name, buffer }]
+        let activeMusicIndex = 0;
+        let activeVoiceIndex = 0;
+
+        // Load one or more audio files of a given type
+        async function loadAudioFiles(fileList, type) {
+            const files = Array.from(fileList || []);
+            for (const file of files) {
+                await loadAudioFile(file, type);
+            }
+        }
+
+        // Load a single audio file
         async function loadAudioFile(file, type) {
             if (!audioCtx) initAudio();
 
             const nameEl = document.getElementById(type === 'music' ? 'musicName' : 'voiceName');
-            const ledEl = document.getElementById(type === 'music' ? 'musicLed' : 'voiceLed');
             const display = document.getElementById('ledDisplay');
 
             try {
                 display.textContent = 'LOADING...';
                 nameEl.textContent = `Loading ${file.name}...`;
 
-                console.log(`Loading ${type}: ${file.name} (${file.type}, ${(file.size/1024).toFixed(1)}KB)`);
-
                 const arrayBuffer = await file.arrayBuffer();
-                console.log(`File read, decoding audio...`);
-
                 const buffer = await audioCtx.decodeAudioData(arrayBuffer);
-                console.log(`Decoded: ${buffer.duration.toFixed(1)}s, ${buffer.numberOfChannels}ch, ${buffer.sampleRate}Hz`);
+                console.log(`Decoded ${type}: ${file.name} — ${buffer.duration.toFixed(1)}s, ${buffer.numberOfChannels}ch, ${buffer.sampleRate}Hz`);
 
-                if (type === 'music') {
-                    musicBuffer = buffer;
-                    ledEl.classList.add('music-on');
-                } else {
-                    voiceBuffer = buffer;
-                    ledEl.classList.add('voice-on');
-                }
-
-                nameEl.textContent = `${file.name} (${buffer.duration.toFixed(1)}s)`;
-                nameEl.classList.remove('empty');
-
-                if (musicBuffer && voiceBuffer) {
-                    display.textContent = 'READY';
-                } else if (musicBuffer || voiceBuffer) {
-                    display.textContent = 'LOAD 2ND FILE';
-                }
-
+                registerDecodedTrack(type, file.name, buffer);
             } catch (err) {
                 console.error(`Failed to load ${type}:`, err);
                 nameEl.textContent = `ERROR: ${err.message}`;
                 nameEl.style.color = '#ef4444';
                 display.textContent = 'LOAD ERROR';
                 alert(`Failed to load ${file.name}:\n\n${err.message}\n\nTry converting to WAV format.`);
-                return;
+            }
+        }
+
+        // Register an already-decoded AudioBuffer as a track and make it active
+        function registerDecodedTrack(type, name, buffer) {
+            const nameEl = document.getElementById(type === 'music' ? 'musicName' : 'voiceName');
+            const ledEl = document.getElementById(type === 'music' ? 'musicLed' : 'voiceLed');
+            const display = document.getElementById('ledDisplay');
+
+            if (type === 'music') {
+                musicTracks.push({ name, buffer });
+                activeMusicIndex = musicTracks.length - 1;
+                musicBuffer = buffer;
+                ledEl.classList.add('music-on');
+            } else {
+                voiceTracks.push({ name, buffer });
+                activeVoiceIndex = voiceTracks.length - 1;
+                voiceBuffer = buffer;
+                ledEl.classList.add('voice-on');
             }
 
-            // Restart if playing
+            const list = type === 'music' ? musicTracks : voiceTracks;
+            nameEl.textContent = list.length > 1
+                ? `${list.length} tracks (${name})`
+                : `${name} (${buffer.duration.toFixed(1)}s)`;
+            nameEl.classList.remove('empty');
+            nameEl.style.color = '';
+
+            if (musicBuffer && voiceBuffer) {
+                display.textContent = 'READY';
+            } else if (musicBuffer || voiceBuffer) {
+                display.textContent = 'LOAD 2ND FILE';
+            }
+
+            renderTrackList();
+
+            // Restart active preview if playing
             if (isPlaying) {
                 stopAudio();
                 startAudio();
             }
-
             updateTimeDisplay();
         }
 
@@ -1486,8 +1786,8 @@
             // Knob rotations
             setKnobRotation('musicKnob', state.musicLevel, -30, 6);
             setKnobRotation('binauralKnob', state.binauralLevel, -40, 0);
-            setKnobRotation('subliminalKnob', state.subliminalLevel, -50, -15);
-            setKnobRotation('energyKnob', state.energyLevel, -40, -10);
+            setKnobRotation('subliminalKnob', state.subliminalLevel, -50, 6);
+            setKnobRotation('energyKnob', state.energyLevel, -50, 0);
             setKnobRotation('carrierKnob', state.carrierFreq, 100, 300);
             setKnobRotation('thetaKnob', state.thetaFreq, 4, 30);
 
@@ -1677,6 +1977,129 @@
         // ===== EXPORT =====
         let isExporting = false;
 
+        // Subliminal low-pass cutoff: muffle when in the subliminal zone,
+        // stay open when the voice is loud enough to be heard consciously.
+        function subliminalFilterFreq() {
+            return state.subliminalLevel <= -20 ? 4000 : 20000;
+        }
+
+        // Render a full mix of the given music + voice buffers to an AudioBuffer,
+        // using the current mixer state. Shared by single-track and album export.
+        async function renderMix(musicBuf, voiceBuf) {
+            const sampleRate = 44100;
+            const musicDur = musicBuf ? musicBuf.duration : 0;
+            const voiceDur = voiceBuf ? voiceBuf.duration : 0;
+            // Cover the longest layer so nothing is cut off; loop shorter layers.
+            const duration = Math.max(musicDur, voiceDur) || 1;
+            const numSamples = Math.ceil(duration * sampleRate);
+
+            const offlineCtx = new OfflineAudioContext(2, numSamples, sampleRate);
+            const offlineMaster = offlineCtx.createGain();
+            offlineMaster.gain.value = 0.9;
+            offlineMaster.connect(offlineCtx.destination);
+
+            // Music (loops to fill the full duration if the song is shorter)
+            if (musicBuf) {
+                const musicSrc = offlineCtx.createBufferSource();
+                const musicG = offlineCtx.createGain();
+                musicSrc.buffer = musicBuf;
+                musicSrc.loop = true;
+                musicG.gain.value = state.musicMuted ? 0 : dbToGain(state.musicLevel);
+                musicSrc.connect(musicG);
+                musicG.connect(offlineMaster);
+                musicSrc.start(0);
+            }
+
+            // Binaural beats
+            if (!state.binauralMuted) {
+                const binauralG = offlineCtx.createGain();
+                binauralG.gain.value = dbToGain(state.binauralLevel);
+                const merger = offlineCtx.createChannelMerger(2);
+                merger.connect(binauralG);
+                binauralG.connect(offlineMaster);
+
+                const leftOsc = offlineCtx.createOscillator();
+                const rightOsc = offlineCtx.createOscillator();
+                const leftG = offlineCtx.createGain();
+                const rightG = offlineCtx.createGain();
+                leftOsc.frequency.value = state.carrierFreq;
+                rightOsc.frequency.value = state.carrierFreq + state.thetaFreq;
+                leftG.gain.value = 0.5;
+                rightG.gain.value = 0.5;
+                leftOsc.connect(leftG);
+                rightOsc.connect(rightG);
+                leftG.connect(merger, 0, 0);
+                rightG.connect(merger, 0, 1);
+                leftOsc.start(0);
+                rightOsc.start(0);
+            }
+
+            // Voice / Subliminal (loops to fill the full duration)
+            if (voiceBuf && !state.subliminalMuted) {
+                const voiceSrc = offlineCtx.createBufferSource();
+                const voiceG = offlineCtx.createGain();
+                const voiceFilter = offlineCtx.createBiquadFilter();
+                voiceSrc.buffer = voiceBuf;
+                voiceSrc.loop = true;
+                voiceG.gain.value = dbToGain(state.subliminalLevel);
+                voiceFilter.type = 'lowpass';
+                voiceFilter.frequency.value = subliminalFilterFreq();
+                voiceSrc.connect(voiceG);
+                voiceG.connect(voiceFilter);
+                voiceFilter.connect(offlineMaster);
+                voiceSrc.start(0);
+            }
+
+            // Energy beats
+            if (state.energyStyle !== 'off' && !state.energyMuted) {
+                const bpm = ENERGY_STYLES[state.energyStyle].bpm;
+                const beatInterval = 60 / bpm;
+                const energyG = offlineCtx.createGain();
+                energyG.gain.value = dbToGain(state.energyLevel);
+                energyG.connect(offlineMaster);
+
+                for (let t = 0; t < duration; t += beatInterval) {
+                    const osc = offlineCtx.createOscillator();
+                    const envGain = offlineCtx.createGain();
+                    osc.frequency.setValueAtTime(60, t);
+                    osc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
+                    envGain.gain.setValueAtTime(0.5, t);
+                    envGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+                    osc.connect(envGain);
+                    envGain.connect(energyG);
+                    osc.start(t);
+                    osc.stop(t + 0.15);
+                }
+            }
+
+            return await offlineCtx.startRendering();
+        }
+
+        // Trigger a browser download of a Blob
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Build a friendly output filename from the source track names
+        function sanitizeName(name) {
+            return (name || 'track').replace(/\.[^.]+$/, '').replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'track';
+        }
+
+        function mixFileName(musicTrack, voiceTrack) {
+            const parts = [];
+            if (musicTrack) parts.push(sanitizeName(musicTrack.name));
+            if (voiceTrack) parts.push(sanitizeName(voiceTrack.name));
+            const base = parts.join('_') || 'subliminal-mix';
+            return `${base}.${state.session || 'custom'}.wav`;
+        }
+
         async function exportAudio() {
             if (!musicBuffer && !voiceBuffer) {
                 alert('Please load at least one audio file first');
@@ -1693,119 +2116,16 @@
             document.getElementById('ledDisplay').textContent = 'EXPORTING...';
 
             try {
-                // Determine duration (use music length, or voice if no music)
-                const duration = musicBuffer ? musicBuffer.duration : voiceBuffer.duration;
-                const sampleRate = 44100;
-                const numSamples = Math.ceil(duration * sampleRate);
-
-                // Create offline context
-                const offlineCtx = new OfflineAudioContext(2, numSamples, sampleRate);
-
-                // Create gains
-                const offlineMaster = offlineCtx.createGain();
-                offlineMaster.gain.value = 0.9;
-                offlineMaster.connect(offlineCtx.destination);
-
-                // Music
-                if (musicBuffer) {
-                    const musicSrc = offlineCtx.createBufferSource();
-                    const musicG = offlineCtx.createGain();
-                    musicSrc.buffer = musicBuffer;
-                    musicG.gain.value = state.musicMuted ? 0 : dbToGain(state.musicLevel);
-                    musicSrc.connect(musicG);
-                    musicG.connect(offlineMaster);
-                    musicSrc.start(0);
-                }
-
-                // Binaural beats
-                if (!state.binauralMuted) {
-                    const binauralG = offlineCtx.createGain();
-                    binauralG.gain.value = dbToGain(state.binauralLevel);
-
-                    const merger = offlineCtx.createChannelMerger(2);
-                    merger.connect(binauralG);
-                    binauralG.connect(offlineMaster);
-
-                    const leftOsc = offlineCtx.createOscillator();
-                    const rightOsc = offlineCtx.createOscillator();
-                    const leftG = offlineCtx.createGain();
-                    const rightG = offlineCtx.createGain();
-
-                    leftOsc.frequency.value = state.carrierFreq;
-                    rightOsc.frequency.value = state.carrierFreq + state.thetaFreq;
-                    leftG.gain.value = 0.5;
-                    rightG.gain.value = 0.5;
-
-                    leftOsc.connect(leftG);
-                    rightOsc.connect(rightG);
-                    leftG.connect(merger, 0, 0);
-                    rightG.connect(merger, 0, 1);
-
-                    leftOsc.start(0);
-                    rightOsc.start(0);
-                }
-
-                // Voice/Subliminal
-                if (voiceBuffer && !state.subliminalMuted) {
-                    const voiceSrc = offlineCtx.createBufferSource();
-                    const voiceG = offlineCtx.createGain();
-                    const voiceFilter = offlineCtx.createBiquadFilter();
-
-                    voiceSrc.buffer = voiceBuffer;
-                    voiceSrc.loop = true;
-                    voiceG.gain.value = dbToGain(state.subliminalLevel);
-                    voiceFilter.type = 'lowpass';
-                    voiceFilter.frequency.value = state.subliminalLevel < -20 ? 4000 : 20000;
-
-                    voiceSrc.connect(voiceG);
-                    voiceG.connect(voiceFilter);
-                    voiceFilter.connect(offlineMaster);
-                    voiceSrc.start(0);
-                }
-
-                // Energy beats
-                if (state.energyStyle !== 'off' && !state.energyMuted) {
-                    const bpm = ENERGY_STYLES[state.energyStyle].bpm;
-                    const beatInterval = 60 / bpm;
-                    const energyG = offlineCtx.createGain();
-                    energyG.gain.value = dbToGain(state.energyLevel);
-                    energyG.connect(offlineMaster);
-
-                    for (let t = 0; t < duration; t += beatInterval) {
-                        const osc = offlineCtx.createOscillator();
-                        const envGain = offlineCtx.createGain();
-
-                        osc.frequency.setValueAtTime(60, t);
-                        osc.frequency.exponentialRampToValueAtTime(40, t + 0.1);
-
-                        envGain.gain.setValueAtTime(0.5, t);
-                        envGain.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-
-                        osc.connect(envGain);
-                        envGain.connect(energyG);
-
-                        osc.start(t);
-                        osc.stop(t + 0.15);
-                    }
-                }
-
-                // Render
                 exportText.textContent = 'PROCESSING...';
-                const renderedBuffer = await offlineCtx.startRendering();
+                const renderedBuffer = await renderMix(musicBuffer, voiceBuffer);
 
                 // Convert to WAV
                 exportText.textContent = 'SAVING...';
                 const wavBlob = bufferToWav(renderedBuffer);
 
                 // Download
-                const url = URL.createObjectURL(wavBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'subliminal-mix.wav';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                downloadBlob(wavBlob, mixFileName(
+                    musicTracks[activeMusicIndex], voiceTracks[activeVoiceIndex]));
 
                 document.getElementById('ledDisplay').textContent = 'EXPORT COMPLETE';
 
@@ -1891,11 +2211,13 @@
         });
 
         document.getElementById('musicInput').addEventListener('change', (e) => {
-            if (e.target.files[0]) loadAudioFile(e.target.files[0], 'music');
+            loadAudioFiles(e.target.files, 'music');
+            e.target.value = '';  // allow re-selecting the same file(s)
         });
 
         document.getElementById('voiceInput').addEventListener('change', (e) => {
-            if (e.target.files[0]) loadAudioFile(e.target.files[0], 'voice');
+            loadAudioFiles(e.target.files, 'voice');
+            e.target.value = '';
         });
 
         document.querySelectorAll('.mute-btn').forEach(btn => {
@@ -1943,10 +2265,419 @@
             });
         });
 
+        // =====================================================================
+        // ALBUM / MULTI-TRACK LIST
+        // =====================================================================
+        function buildPairs() {
+            const nMusic = musicTracks.length;
+            const nVoice = voiceTracks.length;
+            const count = Math.max(nMusic, nVoice);
+            const pairs = [];
+            for (let i = 0; i < count; i++) {
+                pairs.push({
+                    music: nMusic ? musicTracks[i % nMusic] : null,
+                    voice: nVoice ? voiceTracks[i % nVoice] : null,
+                    mi: nMusic ? i % nMusic : -1,
+                    vi: nVoice ? i % nVoice : -1,
+                });
+            }
+            return pairs;
+        }
+
+        function renderTrackList() {
+            const section = document.getElementById('trackListSection');
+            const nMusic = musicTracks.length;
+            const nVoice = voiceTracks.length;
+
+            // Only show album view when there is more than one track total
+            if (nMusic + nVoice <= 1 || (nMusic <= 1 && nVoice <= 1)) {
+                section.style.display = 'none';
+                return;
+            }
+            section.style.display = 'block';
+
+            const pairs = buildPairs();
+            document.getElementById('trackCount').textContent =
+                `${nMusic} song${nMusic !== 1 ? 's' : ''} × ${nVoice} vocal${nVoice !== 1 ? 's' : ''} → ${pairs.length} track${pairs.length !== 1 ? 's' : ''}`;
+
+            const list = document.getElementById('trackList');
+            list.innerHTML = '';
+            pairs.forEach((pair, i) => {
+                const isActive = pair.mi === activeMusicIndex && pair.vi === activeVoiceIndex;
+                const row = document.createElement('div');
+                row.className = 'track-row' + (isActive ? ' active' : '');
+                row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:6px;margin-bottom:4px;background:' +
+                    (isActive ? '#26340f' : '#141414') + ';border:1px solid ' + (isActive ? '#4d7c0f' : '#262626') + ';cursor:pointer;font-size:0.72rem';
+                const music = pair.music ? sanitizeName(pair.music.name) : '—';
+                const voice = pair.voice ? sanitizeName(pair.voice.name) : '—';
+                row.innerHTML =
+                    `<span style="color:#666;min-width:20px">${String(i + 1).padStart(2, '0')}</span>` +
+                    `<span style="color:#60a5fa;flex:1">🎵 ${music}</span>` +
+                    `<span style="color:#fbbf24;flex:1">🎤 ${voice}</span>` +
+                    `<span style="color:${isActive ? '#a3e635' : '#555'};font-weight:700">${isActive ? '▶ PREVIEW' : 'PREVIEW'}</span>`;
+                row.addEventListener('click', () => selectPair(pair));
+                list.appendChild(row);
+            });
+
+            document.getElementById('trackInfo').textContent =
+                'Each song is paired with a vocal (cycling). Preview a pair, or export all as separate WAVs.';
+            document.getElementById('exportAlbumBtn').disabled = false;
+        }
+
+        function selectPair(pair) {
+            if (pair.mi >= 0) { activeMusicIndex = pair.mi; musicBuffer = musicTracks[pair.mi].buffer; }
+            if (pair.vi >= 0) { activeVoiceIndex = pair.vi; voiceBuffer = voiceTracks[pair.vi].buffer; }
+            renderTrackList();
+            updateTimeDisplay();
+            if (isPlaying) { stopAudio(); startAudio(); }
+        }
+
+        async function exportAlbum() {
+            if (isExporting) return;
+            const pairs = buildPairs();
+            if (!pairs.length) return;
+
+            isExporting = true;
+            const btn = document.getElementById('exportAlbumBtn');
+            const txt = document.getElementById('exportAlbumText');
+            const progress = document.getElementById('exportProgress');
+            const bar = document.getElementById('exportProgressBar');
+            const ptext = document.getElementById('exportProgressText');
+            btn.disabled = true;
+            progress.style.display = 'flex';
+            bar.style.cssText = 'height:6px;background:#a3e635;border-radius:3px;transition:width 0.2s';
+
+            try {
+                for (let i = 0; i < pairs.length; i++) {
+                    const pair = pairs[i];
+                    txt.textContent = `RENDERING ${i + 1}/${pairs.length}`;
+                    ptext.textContent = `Track ${i + 1} of ${pairs.length}`;
+                    bar.style.width = `${Math.round((i / pairs.length) * 100)}%`;
+
+                    const rendered = await renderMix(
+                        pair.music ? pair.music.buffer : null,
+                        pair.voice ? pair.voice.buffer : null
+                    );
+                    const wav = bufferToWav(rendered);
+                    const num = String(i + 1).padStart(2, '0');
+                    downloadBlob(wav, `${num}_${mixFileName(pair.music, pair.voice)}`);
+                    // Small gap so the browser accepts sequential downloads
+                    await new Promise(r => setTimeout(r, 400));
+                }
+                bar.style.width = '100%';
+                ptext.textContent = `Exported ${pairs.length} tracks ✓`;
+            } catch (err) {
+                console.error('Album export error:', err);
+                ptext.textContent = 'Export failed: ' + err.message;
+            }
+
+            txt.textContent = 'EXPORT ALBUM';
+            btn.disabled = false;
+            isExporting = false;
+            setTimeout(() => { progress.style.display = 'none'; }, 3000);
+        }
+
+        document.getElementById('exportAlbumBtn').addEventListener('click', exportAlbum);
+
+        // =====================================================================
+        // DIRECT VOICE RECORDER
+        // =====================================================================
+        let mediaRecorder = null;
+        let recChunks = [];
+        let recStream = null;
+        let recSourceNode = null;
+        let recAnalyser = null;
+        let recStartTs = 0;
+        let recTimerId = null;
+        let recMeterRaf = null;
+        let lastRecording = null;   // { buffer, name }
+
+        function setRecHint(msg, isError) {
+            const el = document.getElementById('recHint');
+            el.textContent = msg;
+            el.classList.toggle('error', !!isError);
+        }
+
+        function recorderSupported() {
+            return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+        }
+
+        function pickRecMime() {
+            const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'];
+            for (const c of candidates) {
+                if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c;
+            }
+            return '';
+        }
+
+        function formatClock(totalSeconds) {
+            const m = Math.floor(totalSeconds / 60);
+            const s = Math.floor(totalSeconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function updateRecTime() {
+            const elapsed = (performance.now() - recStartTs) / 1000;
+            document.getElementById('recTime').textContent = formatClock(elapsed);
+        }
+
+        function recMeterLoop() {
+            if (!recAnalyser) return;
+            const data = new Uint8Array(recAnalyser.fftSize);
+            recAnalyser.getByteTimeDomainData(data);
+            let sum = 0;
+            for (let i = 0; i < data.length; i++) {
+                const v = (data[i] - 128) / 128;
+                sum += v * v;
+            }
+            const rms = Math.sqrt(sum / data.length);
+            const pct = Math.min(100, rms * 240);
+            document.getElementById('recMeter').style.width = pct + '%';
+            recMeterRaf = requestAnimationFrame(recMeterLoop);
+        }
+
+        async function startRecording() {
+            if (!audioCtx) initAudio();
+            try {
+                recStream = await navigator.mediaDevices.getUserMedia({
+                    audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+                });
+            } catch (err) {
+                setRecHint('Microphone unavailable: ' + err.message + ' (recording needs mic permission and a secure context).', true);
+                return;
+            }
+
+            recChunks = [];
+            const mime = pickRecMime();
+            try {
+                mediaRecorder = mime ? new MediaRecorder(recStream, { mimeType: mime }) : new MediaRecorder(recStream);
+            } catch (e) {
+                mediaRecorder = new MediaRecorder(recStream);
+            }
+            mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size) recChunks.push(e.data); };
+            mediaRecorder.onstop = onRecordingStop;
+            mediaRecorder.start();
+
+            // Live input level meter
+            recAnalyser = audioCtx.createAnalyser();
+            recAnalyser.fftSize = 512;
+            recSourceNode = audioCtx.createMediaStreamSource(recStream);
+            recSourceNode.connect(recAnalyser);
+
+            recStartTs = performance.now();
+            document.getElementById('recTime').textContent = '0:00';
+            recTimerId = setInterval(updateRecTime, 250);
+            recMeterLoop();
+
+            const btn = document.getElementById('recBtn');
+            btn.classList.add('recording');
+            document.getElementById('recBtnText').textContent = 'STOP';
+            document.getElementById('recUseBtn').disabled = true;
+            document.getElementById('recDownloadBtn').disabled = true;
+            setRecHint('Recording… speak your affirmations clearly. Click STOP when done.');
+        }
+
+        function teardownRecStream() {
+            if (recTimerId) { clearInterval(recTimerId); recTimerId = null; }
+            if (recMeterRaf) { cancelAnimationFrame(recMeterRaf); recMeterRaf = null; }
+            document.getElementById('recMeter').style.width = '0%';
+            if (recSourceNode) { try { recSourceNode.disconnect(); } catch (e) {} recSourceNode = null; }
+            recAnalyser = null;
+            if (recStream) { recStream.getTracks().forEach(t => t.stop()); recStream = null; }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+            }
+        }
+
+        async function onRecordingStop() {
+            const btn = document.getElementById('recBtn');
+            btn.classList.remove('recording');
+            document.getElementById('recBtnText').textContent = 'RECORD';
+
+            const type = (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm';
+            const blob = new Blob(recChunks, { type });
+            teardownRecStream();
+
+            if (!blob.size) {
+                setRecHint('Nothing was recorded — try again.', true);
+                return;
+            }
+
+            try {
+                const arrayBuffer = await blob.arrayBuffer();
+                const buffer = await audioCtx.decodeAudioData(arrayBuffer);
+                const stamp = formatClock(buffer.duration).replace(':', 'm') + 's';
+                const name = `recording-${stamp}`;
+                lastRecording = { buffer, name };
+
+                // Use it as the vocal track immediately
+                registerDecodedTrack('voice', name, buffer);
+
+                document.getElementById('recUseBtn').disabled = false;
+                document.getElementById('recDownloadBtn').disabled = false;
+                setRecHint(`Recorded ${buffer.duration.toFixed(1)}s and loaded as the vocal track. Press play to preview, or SAVE to keep a WAV.`);
+            } catch (err) {
+                setRecHint('Could not decode the recording: ' + err.message, true);
+            }
+        }
+
+        async function toggleRecord() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                stopRecording();
+            } else {
+                await startRecording();
+            }
+        }
+
+        if (recorderSupported()) {
+            document.getElementById('recBtn').addEventListener('click', toggleRecord);
+            document.getElementById('recUseBtn').addEventListener('click', () => {
+                if (lastRecording) registerDecodedTrack('voice', lastRecording.name, lastRecording.buffer);
+            });
+            document.getElementById('recDownloadBtn').addEventListener('click', () => {
+                if (lastRecording) downloadBlob(bufferToWav(lastRecording.buffer), sanitizeName(lastRecording.name) + '.wav');
+            });
+        } else {
+            document.getElementById('recBtn').disabled = true;
+            setRecHint('In-browser recording needs a modern browser (Chrome/Edge/Firefox) served over https or opened locally.', true);
+        }
+
+        // =====================================================================
+        // CLASSICAL MUSIC LIBRARY
+        // =====================================================================
+        // Embedded fallback catalog (used when the JSON file can't be fetched,
+        // e.g. opened directly via file://). Kept in sync with
+        // music/classical-library.json. All entries are public-domain
+        // compositions; recordings are sourced from Musopen's public-domain
+        // release and the Internet Archive.
+        const LIBRARY_FALLBACK = [
+            { title: "Spring (La Primavera), Op. 8 No. 1", composer: "Antonio Vivaldi", moods: ["bright", "uplifting"], note: "Sunny, bird-song opening of The Four Seasons.", source: "https://musopen.org/music/2073-the-four-seasons/" },
+            { title: "Eine kleine Nachtmusik, K.525 — Allegro", composer: "W. A. Mozart", moods: ["bright", "playful"], note: "Buoyant, instantly recognizable serenade.", source: "https://archive.org/details/MozartEineKleineNachtmusikAllegro" },
+            { title: "Symphony No. 9 — Ode to Joy", composer: "Ludwig van Beethoven", moods: ["triumphant", "uplifting"], note: "The definitive anthem of joy.", source: "https://musopen.org/music/280-symphony-no-9-in-d-minor-op-125/" },
+            { title: "Brandenburg Concerto No. 3, BWV 1048", composer: "J. S. Bach", moods: ["energetic", "bright"], note: "Bustling, optimistic strings.", source: "https://musopen.org/music/2567-brandenburg-concerto-no-3-in-g-major-bwv-1048/" },
+            { title: "Water Music — Alla Hornpipe", composer: "George F. Handel", moods: ["triumphant", "energetic"], note: "Regal, celebratory brass and strings.", source: "https://musopen.org/music/2413-water-music-suite-in-f-major-hwv-348/" },
+            { title: "The Four Seasons — Autumn, Allegro", composer: "Antonio Vivaldi", moods: ["playful", "energetic"], note: "A joyful harvest dance.", source: "https://musopen.org/music/2073-the-four-seasons/" },
+            { title: "Symphony No. 6 'Pastoral' — Awakening", composer: "Ludwig van Beethoven", moods: ["serene", "uplifting"], note: "Cheerful feelings on arriving in the country.", source: "https://musopen.org/music/43-symphony-no-6-in-f-major-op-68-pastoral/" },
+            { title: "Clarinet Concerto in A, K.622 — Rondo", composer: "W. A. Mozart", moods: ["serene", "bright"], note: "Warm, gently optimistic finale.", source: "https://musopen.org/music/3556-clarinet-concerto-in-a-major-k-622/" },
+            { title: "Canon in D", composer: "Johann Pachelbel", moods: ["serene", "uplifting"], note: "Hopeful, endlessly reassuring progression.", source: "https://musopen.org/music/2138-canon-in-d/" },
+            { title: "Spring Song, Op. 62 No. 6", composer: "Felix Mendelssohn", moods: ["bright", "playful"], note: "Light, springtime piano miniature.", source: "https://musopen.org/music/2296-songs-without-words/" },
+            { title: "Slavonic Dance No. 1 in C", composer: "Antonín Dvořák", moods: ["energetic", "triumphant"], note: "Exuberant folk-dance drive.", source: "https://musopen.org/music/3577-slavonic-dances-op-46/" },
+            { title: "Morning Mood (Peer Gynt Suite)", composer: "Edvard Grieg", moods: ["serene", "uplifting"], note: "Sunrise calm blossoming into warmth.", source: "https://musopen.org/music/2379-peer-gynt-suite-no-1-op-46/" }
+        ];
+
+        let libraryData = LIBRARY_FALLBACK;
+        let activeMood = 'all';
+
+        async function initLibrary() {
+            try {
+                const res = await fetch('music/classical-library.json', { cache: 'no-store' });
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && Array.isArray(json.tracks) && json.tracks.length) {
+                        libraryData = json.tracks;
+                    }
+                }
+            } catch (e) {
+                // file:// or offline — fall back to embedded catalog
+                console.log('Using embedded music catalog:', e.message);
+            }
+            renderMoodFilter();
+            renderLibrary();
+            renderLibraryNote();
+        }
+
+        function allMoods() {
+            const set = new Set();
+            libraryData.forEach(t => (t.moods || []).forEach(m => set.add(m)));
+            return ['all', ...Array.from(set).sort()];
+        }
+
+        function renderMoodFilter() {
+            const wrap = document.getElementById('libraryFilter');
+            wrap.innerHTML = '';
+            allMoods().forEach(mood => {
+                const chip = document.createElement('button');
+                chip.className = 'mood-chip' + (mood === activeMood ? ' active' : '');
+                chip.textContent = mood;
+                chip.addEventListener('click', () => { activeMood = mood; renderMoodFilter(); renderLibrary(); });
+                wrap.appendChild(chip);
+            });
+        }
+
+        function renderLibrary() {
+            const grid = document.getElementById('libraryGrid');
+            grid.innerHTML = '';
+            const tracks = libraryData.filter(t => activeMood === 'all' || (t.moods || []).includes(activeMood));
+            tracks.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'lib-card';
+                const moods = (t.moods || []).map(m => `<span class="lib-mood-tag">${m}</span>`).join('');
+                const directUrl = (t.source && t.source.download) || t.download || null;
+                const pageUrl = (t.source && t.source.page) || (typeof t.source === 'string' ? t.source : null);
+                let actions = '';
+                if (directUrl) {
+                    actions += `<button class="lib-btn primary" data-url="${directUrl}" data-label="${(t.composer + ' - ' + t.title).replace(/"/g, '')}">LOAD</button>`;
+                }
+                if (pageUrl) {
+                    actions += `<a class="lib-btn" href="${pageUrl}" target="_blank" rel="noopener">SOURCE ↗</a>`;
+                }
+                card.innerHTML =
+                    `<div class="lib-card-title">${t.title}</div>` +
+                    `<div class="lib-card-composer">${t.composer}</div>` +
+                    `<div class="lib-card-moods">${moods}</div>` +
+                    (t.note ? `<div class="lib-card-meta">${t.note}</div>` : '') +
+                    `<div class="lib-card-actions">${actions}</div>`;
+                grid.appendChild(card);
+            });
+
+            grid.querySelectorAll('.lib-btn.primary[data-url]').forEach(btn => {
+                btn.addEventListener('click', () => loadTrackFromUrl(btn.dataset.url, btn.dataset.label, btn));
+            });
+        }
+
+        function renderLibraryNote() {
+            document.getElementById('libraryNote').innerHTML =
+                'All pieces are public-domain compositions; recordings come from ' +
+                '<a href="https://musopen.org/" target="_blank" rel="noopener">Musopen</a> (released to the public domain) and the ' +
+                '<a href="https://archive.org/details/musopen" target="_blank" rel="noopener">Internet Archive</a>. ' +
+                'Click <strong>SOURCE</strong> to download a recording, or run <code>python fetch_music.py</code> to fetch the whole library into <code>music/</code>, then use <strong>Load Songs</strong>.';
+        }
+
+        async function loadTrackFromUrl(url, label, btn) {
+            if (!url) return;
+            if (!audioCtx) initAudio();
+            if (btn) { btn.classList.add('loading'); btn.textContent = 'LOADING…'; }
+            try {
+                const res = await fetch(url, { mode: 'cors' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const ab = await res.arrayBuffer();
+                const buffer = await audioCtx.decodeAudioData(ab);
+                const name = label || url.split('/').pop() || 'library-track';
+                registerDecodedTrack('music', name, buffer);
+                setRecHint(`Loaded "${name}" from the library as a song.`);
+            } catch (err) {
+                console.error('Library load failed:', err);
+                alert('Could not load this track in the browser (' + err.message + ').\n\n' +
+                      'This is usually a cross-origin (CORS) restriction. Use the SOURCE link to download it, ' +
+                      'or run the fetch_music.py script, then use "Load Songs".');
+            } finally {
+                if (btn) { btn.classList.remove('loading'); btn.textContent = 'LOAD'; }
+            }
+        }
+
+        document.getElementById('libraryUrlBtn').addEventListener('click', () => {
+            const url = document.getElementById('libraryUrl').value.trim();
+            if (url) loadTrackFromUrl(url, null, null);
+        });
+
         // Initialize
         initKnobs();
         updateUI();
         drawVisualizer();
+        initLibrary();
     </script>
 </body>
 </html>

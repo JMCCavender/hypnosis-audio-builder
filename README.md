@@ -108,6 +108,39 @@ python hypnosis_audio_builder.py --test
 
 ---
 
+## Interactive Mixer (browser)
+
+Open `subliminal-mixer-808.html` in a browser for a live, no-install studio —
+layer music, binaural/isochronic tones, subliminal voice, and energy beats with
+real-time preview and WAV export.
+
+- **🎤 Record affirmations directly** — the Vocals section has a built-in
+  microphone recorder (RECORD / STOP with a live level meter and timer). Your
+  recording is decoded and loaded as the vocal track instantly; SAVE keeps a WAV.
+  No external recording app needed.
+- **🎼 Classical Music Library** — a built-in panel of optimistic,
+  public-domain classical pieces (filterable by mood). Load a recording by URL,
+  open its source page, or fetch the whole library with `python fetch_music.py`.
+- **Album mode** — load multiple songs and/or vocals; the mixer pairs them
+  (cycling vocals) into a track list, previews any pair, and exports the whole
+  album as separate WAVs.
+
+## License-Free Music
+
+The `music/` folder ships a curated catalog of **public-domain, positive
+classical music** (Vivaldi's *Spring*, *Ode to Joy*, Bach's Brandenburg
+Concertos, and more). Recordings come from [Musopen](https://musopen.org/) and
+the [Internet Archive](https://archive.org/details/musopen).
+
+```bash
+python fetch_music.py            # download the whole library into music/
+python fetch_music.py --list     # preview the catalog
+```
+
+See [`music/README.md`](music/README.md) for licensing details and usage.
+
+---
+
 ## Audio Layers
 
 | Layer | Volume | Purpose |

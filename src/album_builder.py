@@ -127,12 +127,16 @@ def _build_track(
     subliminal_from_voice: bool,
     mix_levels: Optional[MixLevels],
     sample_rate: int,
+    entrainment_mode: str = "binaural",
+    waveform: str = "sine",
 ) -> None:
     """Build a single album track."""
     builder = HypnosisAudioBuilder(
         mix_levels=mix_levels,
         sample_rate=sample_rate,
         session_type=session_type,
+        entrainment_mode=entrainment_mode,
+        waveform=waveform,
     )
     builder.build(
         voice_path=vocal_path,
@@ -152,6 +156,8 @@ def album_build(
     subliminal_from_voice: bool = False,
     mix_levels: Optional[MixLevels] = None,
     sample_rate: int = 44100,
+    entrainment_mode: str = "binaural",
+    waveform: str = "sine",
     quiet: bool = False,
 ) -> List[Path]:
     """
@@ -203,6 +209,7 @@ def album_build(
             _build_track(
                 song_path, vocal_path, output_path,
                 session_type, subliminal_from_voice, mix_levels, sample_rate,
+                entrainment_mode, waveform,
             )
             results.append(output_path)
             if not quiet:

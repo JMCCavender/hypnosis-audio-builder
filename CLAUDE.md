@@ -35,6 +35,10 @@ python hypnosis_audio_builder.py --voice script.wav --entrainment-mode isochroni
 # Open interactive frequency explorer
 python hypnosis_audio_builder.py --open-frequency-guide
 
+# Download license-free classical music into music/ (public-domain, from Musopen/Archive.org)
+python fetch_music.py            # download whole catalog
+python fetch_music.py --list     # preview catalog without downloading
+
 # Validate affirmation script
 python hypnosis_audio_builder.py --validate-script affirmations.txt
 
@@ -57,6 +61,12 @@ python tests/test_audio_builder.py  # alternative
 ### Entry Points
 - `hypnosis_audio_builder.py` - CLI interface with argparse, YAML/JSON config support, progress display, batch processing
 - `src/audio_builder.py` - Core library with all audio processing logic
+- `fetch_music.py` - Downloads the license-free classical catalog (`music/classical-library.json`) from the Internet Archive via its public API into `music/`
+- `subliminal-mixer-808.html` - Standalone browser mixer (Web Audio). Live preview + WAV export, in-browser mic recording (MediaRecorder), multi-file "album" mode, and a Classical Music Library panel. No backend; the music catalog is mirrored in an embedded JS fallback so it works via `file://`.
+
+### Music Library
+- `music/classical-library.json` - Single source of truth for the curated public-domain catalog (title, composer, mood tags, source page, `archive_query`). The mixer mirrors this in `LIBRARY_FALLBACK`; keep them in sync.
+- `music/README.md` - Licensing explanation (public-domain compositions; Musopen/Archive.org recordings) and usage.
 
 ### Core Classes (src/audio_builder.py)
 
