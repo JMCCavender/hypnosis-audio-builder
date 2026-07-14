@@ -2173,19 +2173,25 @@
         });
 
         // ===== CLASSICAL LIBRARY (Baroque, public domain, ~60 BPM) =====
+        // Verified 2026-07-14: every sourceUrl below was fetched and confirmed to load a
+        // downloadable recording with an explicit Public Domain / CC0 licenseurl on its
+        // Archive.org item metadata (see .superpowers/sdd/task-4-report.md for the per-entry
+        // verification trail). Two originally-planned entries (Sheep May Safely Graze;
+        // Telemann Viola Concerto) were dropped because no PD/CC0-licensed recording could be
+        // confirmed. The Albinoni, Corelli, and Handel entries were swapped for a different
+        // confirmed-PD recording by the same composer when the original piece had no verified
+        // PD/CC0 source.
         const CLASSICAL_LIBRARY = [
-            { title:"Air on the G String (Suite No. 3)", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Air%20on%20the%20G%20String", approxLength:"5:00", tempo:"~56 BPM", license:"Public Domain" },
-            { title:"Adagio in G minor", composer:"Albinoni / Giazotto", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Albinoni%20Adagio", approxLength:"8:00", tempo:"~52 BPM", license:"Public Domain" },
-            { title:"Ombra mai fù (Largo from Xerxes)", composer:"G.F. Handel", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Handel%20Largo%20Xerxes", approxLength:"3:30", tempo:"~54 BPM", license:"Public Domain" },
-            { title:"Canon in D", composer:"J. Pachelbel", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Pachelbel%20Canon", approxLength:"5:00", tempo:"~64 BPM", license:"Public Domain" },
-            { title:"Oboe Concerto in D minor — Adagio", composer:"A. Marcello", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Marcello%20Oboe%20Concerto", approxLength:"4:00", tempo:"~56 BPM", license:"Public Domain" },
-            { title:"Sheep May Safely Graze (BWV 208)", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Sheep%20May%20Safely%20Graze", approxLength:"5:00", tempo:"~60 BPM", license:"Public Domain" },
-            { title:"Winter (The Four Seasons) — Largo", composer:"A. Vivaldi", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Vivaldi%20Winter%20Largo", approxLength:"2:00", tempo:"~56 BPM", license:"Public Domain" },
-            { title:"Concerto Grosso Op. 6 No. 8 (Christmas) — Largo", composer:"A. Corelli", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Corelli%20Christmas%20Concerto", approxLength:"3:00", tempo:"~58 BPM", license:"Public Domain" },
-            { title:"Sarabande in D minor (HWV 437)", composer:"G.F. Handel", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Handel%20Sarabande", approxLength:"3:00", tempo:"~60 BPM", license:"Public Domain" },
-            { title:"Concerto for Oboe & Violin (BWV 1060) — Adagio", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Bach%20BWV%201060%20Adagio", approxLength:"4:30", tempo:"~54 BPM", license:"Public Domain" },
-            { title:"Viola Concerto in G — Largo", composer:"G.P. Telemann", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Telemann%20Viola%20Concerto", approxLength:"3:00", tempo:"~58 BPM", license:"Public Domain" },
-            { title:"Jesu, Joy of Man's Desiring (BWV 147)", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Jesu%20Joy%20of%20Man%27s%20Desiring", approxLength:"3:00", tempo:"~62 BPM", license:"Public Domain" }
+            { title:"Air on the G String (Suite No. 3)", composer:"J.S. Bach", source:"Archive.org", sourceUrl:"https://archive.org/details/Bach-airOnTheGString", approxLength:"3:31", tempo:"~56 BPM", license:"Public Domain" },
+            { title:"Sonata a cinque in E minor, Op. 5 No. 9 (Allegro-Adagio-Allegro)", composer:"T. Albinoni", source:"Archive.org", sourceUrl:"https://archive.org/download/182-03-chaconne-en-sol-mineur/182-01%20Sonate%20%C3%80%20Cinq%20En%20mi%20mineur%20Op%205%20N%C2%B09.mp3", approxLength:"5:37", tempo:"~56 BPM", license:"Public Domain" },
+            { title:"Ombra mai fù (Largo from Xerxes)", composer:"G.F. Handel", source:"Archive.org", sourceUrl:"https://archive.org/details/largo-72800", approxLength:"4:32", tempo:"~54 BPM", license:"Public Domain" },
+            { title:"Canon in D", composer:"J. Pachelbel", source:"Archive.org", sourceUrl:"https://archive.org/details/PachelbelCanonInDMajorViolineXquisiteVersion", approxLength:"6:12", tempo:"~64 BPM", license:"Public Domain" },
+            { title:"Oboe Concerto in D minor — Adagio", composer:"A. Marcello", source:"Archive.org", sourceUrl:"https://archive.org/download/18-marcello-concerto-per-oboe-adagio/18%20Marcello_%20Concerto%20Per%20Oboe%20Adagio.mp3", approxLength:"4:39", tempo:"~56 BPM", license:"Public Domain" },
+            { title:"Winter (The Four Seasons) — Largo", composer:"A. Vivaldi", source:"Archive.org", sourceUrl:"https://archive.org/details/TheFourSeasonsWinter", approxLength:"3:18", tempo:"~56 BPM", license:"Public Domain" },
+            { title:"Concerto Grosso Op. 3 No. 2 — Largo e Staccato", composer:"A. Corelli", source:"Archive.org", sourceUrl:"https://archive.org/download/geniesduclassique_vol1no01/1-06%20Concerto%20Grosso%20N%C2%B0%202%20En%20Sol%20Mineur%2C%20Op%203%20_%20Largo%20E%20Stacatto.mp3", approxLength:"4:59", tempo:"~58 BPM", license:"Public Domain" },
+            { title:"Concerto Grosso Op. 6 No. 4 — Largo e piano", composer:"G.F. Handel", source:"Archive.org", sourceUrl:"https://archive.org/download/geniesduclassique_vol1no09/5-16%20Handel%20_%20Concerto%20Grosso%20No.%204%20in%20A%20minor%20Op.%206-4%20-%203.%20Largo%20e%20piano.mp3", approxLength:"2:30", tempo:"~60 BPM", license:"Public Domain" },
+            { title:"Concerto for Oboe & Violin (BWV 1060) — Adagio", composer:"J.S. Bach", source:"Archive.org", sourceUrl:"https://archive.org/download/geniesduclassique_vol1no14/08%20Concerto%20Per%20Violino%2C%20Oboe%2C%20Archi%20E%20Basso%20Continuo%20In%20Re%20Minore%20II%20BWV%201060.mp3", approxLength:"5:26", tempo:"~54 BPM", license:"Public Domain" },
+            { title:"Jesu, Joy of Man's Desiring (Celtic arr.)", composer:"J.S. Bach", source:"Archive.org", sourceUrl:"https://archive.org/details/JesuJoyOfMansDesiring_110", approxLength:"2:30", tempo:"~62 BPM", license:"CC0" }
         ];
 
         function renderClassicalLibrary() {
