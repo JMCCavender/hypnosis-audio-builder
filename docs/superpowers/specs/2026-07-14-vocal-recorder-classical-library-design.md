@@ -106,11 +106,20 @@ A collapsible **"Classical Library — public domain"** section near the
 **Load Songs**.
 
 ### Contents
-A curated list of ~12 calming, genuinely public-domain / CC0 pieces suited to hypnosis
-backgrounds (e.g. Satie *Gymnopédies*, Debussy *Clair de Lune*, Chopin nocturnes, slow
-Bach movements). Each row shows: title · composer, source/performer, approximate length,
-license label (Public Domain / CC0), and a **Get track ↗** link to the source download
-page (e.g. Musopen, Archive.org).
+A curated list of ~12 genuinely public-domain / CC0 **Baroque-era** pieces at a slow,
+**~60 BPM** (largo/adagio) tempo — the tempo range traditionally associated with relaxed,
+alpha-state listening, and a good fit for hypnosis backgrounds. Candidate repertoire:
+Bach *Air on the G String*, Pachelbel *Canon in D*, Albinoni *Adagio in G minor*, Handel
+*Largo (Ombra mai fù)* from *Xerxes*, Marcello *Oboe Concerto — Adagio*, Corelli slow
+movements, and slow movements from Vivaldi and Telemann. Each row shows: title · composer,
+source/performer, approximate length, license label (Public Domain / CC0), and a
+**Get track ↗** link to the source download page (e.g. Musopen, Archive.org).
+
+**Curation criteria (both required):**
+- **Baroque era** (roughly 1600–1750): Bach, Handel, Vivaldi, Pachelbel, Albinoni,
+  Corelli, Telemann, Marcello, etc.
+- **~60 BPM** slow tempo — largo/adagio/lento movements. The list favors pieces whose
+  pulse sits near 60 BPM; exact tempo is noted per track where it varies.
 
 ### Data model
 The track list is a small JavaScript array (or embedded JSON) inside the HTML so the file
@@ -142,6 +151,7 @@ cannot be confirmed, it is dropped from the list.
 - Downloaded takes are **WAV** (via existing `bufferToWav`), not webm — for CLI
   compatibility.
 - The library ships as **~12 curated links**, extensible later. **No audio bundled.**
+- Library repertoire is **Baroque era**, slow **~60 BPM** (largo/adagio) only.
 - The recorder shows a **live input-level meter** during capture.
 - Take flow is **preview → keep or redo**; only approved takes are added.
 
