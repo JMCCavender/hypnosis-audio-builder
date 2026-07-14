@@ -849,6 +849,7 @@
         }
         .record-btn { background:#7a1f1f; }
         .record-btn.armed { background:#c0392b; }
+        .rec-stop-btn { background:#7a1f1f; color:inherit; }
         .recorder-panel { margin-top:8px; padding:8px; border:1px solid #333; border-radius:6px; background:#141414; }
         .rec-status-row, .rec-preview-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
         .rec-dot { width:10px; height:10px; border-radius:50%; background:#c0392b; animation:recpulse 1s infinite; }
@@ -1399,18 +1400,18 @@
                 if (type === 'music') {
                     musicBuffer = buffer;
                     ledEl.classList.add('music-on');
+
+                    nameEl.textContent = `${file.name} (${buffer.duration.toFixed(1)}s)`;
+                    nameEl.classList.remove('empty');
+
+                    if (musicBuffer && voiceBuffer) {
+                        display.textContent = 'READY';
+                    } else if (musicBuffer || voiceBuffer) {
+                        display.textContent = 'LOAD 2ND FILE';
+                    }
                 } else {
-                    voiceBuffer = buffer;
-                    ledEl.classList.add('voice-on');
-                }
-
-                nameEl.textContent = `${file.name} (${buffer.duration.toFixed(1)}s)`;
-                nameEl.classList.remove('empty');
-
-                if (musicBuffer && voiceBuffer) {
-                    display.textContent = 'READY';
-                } else if (musicBuffer || voiceBuffer) {
-                    display.textContent = 'LOAD 2ND FILE';
+                    applyVoiceBuffer(buffer, file.name);
+                    return;
                 }
 
             } catch (err) {
@@ -1911,7 +1912,20 @@
         }
 
         // ===== VOCAL RECORDER =====
-        const recorderState = { mediaRecorder:null, stream:null, chunks:[], takeBlob:null, timerId:null, analyser:null, rafId:null, startMs:0 };
+        const recorderState = { mediaRecorder:null, stream:null, chunks:[], takeBlob:null, previewUrl:null, timerId:null, analyser:null, rafId:null, startMs:0 };
+
+        function applyVoiceBuffer(buffer, label) {
+            voiceBuffer = buffer;
+            document.getElementById('voiceLed').classList.add('voice-on');
+            const nameEl = document.getElementById('voiceName');
+            nameEl.textContent = `${label} (${buffer.duration.toFixed(1)}s)`;
+            nameEl.classList.remove('empty');
+            const display = document.getElementById('ledDisplay');
+            if (musicBuffer && voiceBuffer) display.textContent = 'READY';
+            else display.textContent = 'LOAD 2ND FILE';
+            if (isPlaying) { stopAudio(); startAudio(); }
+            updateTimeDisplay();
+        }
 
         function showRecError(msg) {
             const el = document.getElementById('recError');
@@ -1988,8 +2002,17 @@
             document.getElementById('recMeterFill').style.width = '0%';
             document.getElementById('recordBtn').classList.remove('armed');
 
+            if (recorderState.chunks.length === 0) {
+                showRecError('Recording was empty — nothing captured. Try again.');
+                resetRecorder();
+                return;
+            }
+
+            if (recorderState.previewUrl) URL.revokeObjectURL(recorderState.previewUrl);
+
             recorderState.takeBlob = new Blob(recorderState.chunks, { type: recorderState.chunks[0] ? recorderState.chunks[0].type : 'audio/webm' });
             const url = URL.createObjectURL(recorderState.takeBlob);
+            recorderState.previewUrl = url;
             const audio = document.getElementById('takePreview');
             audio.src = url;
 
@@ -2002,12 +2025,47 @@
             if (recorderState.rafId) cancelAnimationFrame(recorderState.rafId);
             if (recorderState.timerId) clearInterval(recorderState.timerId);
             if (recorderState.stream) recorderState.stream.getTracks().forEach(t => t.stop());
+            if (recorderState.previewUrl) { URL.revokeObjectURL(recorderState.previewUrl); recorderState.previewUrl = null; }
             recorderState.mediaRecorder = null; recorderState.stream = null; recorderState.chunks = [];
             recorderState.takeBlob = null; recorderState.analyser = null; recorderState.rafId = null; recorderState.timerId = null;
             const panel = document.getElementById('recorderPanel');
             panel.dataset.mode = 'idle';
             panel.style.display = 'none';
             document.getElementById('recordBtn').classList.remove('armed');
+        }
+
+        async function decodeTakeToBuffer() {
+            if (!audioCtx) initAudio();
+            const arrayBuffer = await recorderState.takeBlob.arrayBuffer();
+            return await audioCtx.decodeAudioData(arrayBuffer);
+        }
+
+        let takeCounter = 0;
+        async function useTake() {
+            if (!recorderState.takeBlob) return;
+            try {
+                const buffer = await decodeTakeToBuffer();
+                takeCounter += 1;
+                applyVoiceBuffer(buffer, `Recorded take ${takeCounter}`);
+                resetRecorder();
+            } catch (err) {
+                showRecError('Could not process the recording: ' + err.message + '. Try Re-record.');
+            }
+        }
+
+        async function downloadTake() {
+            if (!recorderState.takeBlob) return;
+            try {
+                const buffer = await decodeTakeToBuffer();
+                const wavBlob = bufferToWav(buffer);
+                const url = URL.createObjectURL(wavBlob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `affirmation-take-${takeCounter + 1}.wav`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                showRecError('Could not export WAV: ' + err.message);
+            }
         }
 
         // ===== EVENT LISTENERS =====
@@ -2038,6 +2096,16 @@
         document.getElementById('recStopBtn').addEventListener('click', stopRecording);
         document.getElementById('reRecordBtn').addEventListener('click', () => { resetRecorder(); startRecording(); });
         document.getElementById('discardTakeBtn').addEventListener('click', resetRecorder);
+        document.getElementById('useTakeBtn').addEventListener('click', useTake);
+        document.getElementById('downloadTakeBtn').addEventListener('click', downloadTake);
+
+        // Hide recording UI if the browser lacks MediaRecorder/getUserMedia
+        if (!window.MediaRecorder || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            const rb = document.getElementById('recordBtn');
+            rb.disabled = true;
+            rb.title = 'Recording not supported in this browser';
+            rb.textContent = '● Record (unsupported)';
+        }
 
         document.querySelectorAll('.mute-btn').forEach(btn => {
             btn.addEventListener('click', () => {
