@@ -289,6 +289,17 @@
             color: #666;
         }
 
+        .classical-section { margin:10px 0; padding:10px; border:1px solid #333; border-radius:6px; background:#141414; }
+        .classical-header { display:flex; flex-direction:column; gap:2px; margin-bottom:8px; }
+        .classical-title { font-weight:600; }
+        .classical-hint { font-size:12px; opacity:.7; }
+        .classical-list { display:flex; flex-direction:column; gap:4px; }
+        .classical-row { display:grid; grid-template-columns:2fr 1.4fr auto auto auto; gap:8px; align-items:center; padding:6px 8px; background:#0e0e0e; border-radius:4px; font-size:13px; }
+        .classical-row .cl-license { font-size:11px; opacity:.7; }
+        .classical-row a.cl-get { white-space:nowrap; color:#4aa3ff; text-decoration:none; }
+        .classical-row a.cl-get:hover { text-decoration:underline; }
+        @media (max-width:640px){ .classical-row{ grid-template-columns:1fr auto; } .classical-row .cl-source,.classical-row .cl-len{ display:none; } }
+
         /* Headphones notice */
         .headphones-notice {
             background: linear-gradient(90deg, #a78bfa22, transparent);
@@ -905,6 +916,7 @@
                     <input type="file" id="musicInput" class="file-input" accept="audio/*" multiple>
                     <button class="file-btn" id="musicBtn">Load Songs</button>
                     <span class="file-name empty" id="musicName">No files selected</span>
+                    <button class="file-btn" id="browseClassicalBtn">Browse Classical</button>
                 </div>
             </div>
             <div class="file-box voice">
@@ -937,6 +949,14 @@
                     <div class="rec-error" id="recError" style="display:none"></div>
                 </div>
             </div>
+        </div>
+
+        <div class="classical-section" id="classicalSection" style="display:none">
+            <div class="classical-header">
+                <span class="classical-title">🎻 Classical Library — Baroque, public domain (~60 BPM)</span>
+                <span class="classical-hint">Open a source, download the track, then load it via “Load Songs”.</span>
+            </div>
+            <div class="classical-list" id="classicalList"></div>
         </div>
 
         <!-- Track List (Album Mode) -->
@@ -2151,6 +2171,53 @@
                 }, 1500);
             });
         });
+
+        // ===== CLASSICAL LIBRARY (Baroque, public domain, ~60 BPM) =====
+        const CLASSICAL_LIBRARY = [
+            { title:"Air on the G String (Suite No. 3)", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Air%20on%20the%20G%20String", approxLength:"5:00", tempo:"~56 BPM", license:"Public Domain" },
+            { title:"Adagio in G minor", composer:"Albinoni / Giazotto", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Albinoni%20Adagio", approxLength:"8:00", tempo:"~52 BPM", license:"Public Domain" },
+            { title:"Ombra mai fù (Largo from Xerxes)", composer:"G.F. Handel", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Handel%20Largo%20Xerxes", approxLength:"3:30", tempo:"~54 BPM", license:"Public Domain" },
+            { title:"Canon in D", composer:"J. Pachelbel", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Pachelbel%20Canon", approxLength:"5:00", tempo:"~64 BPM", license:"Public Domain" },
+            { title:"Oboe Concerto in D minor — Adagio", composer:"A. Marcello", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Marcello%20Oboe%20Concerto", approxLength:"4:00", tempo:"~56 BPM", license:"Public Domain" },
+            { title:"Sheep May Safely Graze (BWV 208)", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Sheep%20May%20Safely%20Graze", approxLength:"5:00", tempo:"~60 BPM", license:"Public Domain" },
+            { title:"Winter (The Four Seasons) — Largo", composer:"A. Vivaldi", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Vivaldi%20Winter%20Largo", approxLength:"2:00", tempo:"~56 BPM", license:"Public Domain" },
+            { title:"Concerto Grosso Op. 6 No. 8 (Christmas) — Largo", composer:"A. Corelli", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Corelli%20Christmas%20Concerto", approxLength:"3:00", tempo:"~58 BPM", license:"Public Domain" },
+            { title:"Sarabande in D minor (HWV 437)", composer:"G.F. Handel", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Handel%20Sarabande", approxLength:"3:00", tempo:"~60 BPM", license:"Public Domain" },
+            { title:"Concerto for Oboe & Violin (BWV 1060) — Adagio", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Bach%20BWV%201060%20Adagio", approxLength:"4:30", tempo:"~54 BPM", license:"Public Domain" },
+            { title:"Viola Concerto in G — Largo", composer:"G.P. Telemann", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Telemann%20Viola%20Concerto", approxLength:"3:00", tempo:"~58 BPM", license:"Public Domain" },
+            { title:"Jesu, Joy of Man's Desiring (BWV 147)", composer:"J.S. Bach", source:"Musopen", sourceUrl:"https://musopen.org/music/?q=Jesu%20Joy%20of%20Man%27s%20Desiring", approxLength:"3:00", tempo:"~62 BPM", license:"Public Domain" }
+        ];
+
+        function renderClassicalLibrary() {
+            const list = document.getElementById('classicalList');
+            list.innerHTML = '';
+            CLASSICAL_LIBRARY.forEach(t => {
+                const row = document.createElement('div');
+                row.className = 'classical-row';
+                const title = document.createElement('span');
+                title.innerHTML = `<strong>${t.title}</strong> · ${t.composer}`;
+                const source = document.createElement('span');
+                source.className = 'cl-source'; source.textContent = t.source;
+                const len = document.createElement('span');
+                len.className = 'cl-len'; len.textContent = `${t.approxLength} · ${t.tempo}`;
+                const lic = document.createElement('span');
+                lic.className = 'cl-license'; lic.textContent = t.license;
+                const link = document.createElement('a');
+                link.className = 'cl-get'; link.href = t.sourceUrl; link.target = '_blank';
+                link.rel = 'noopener noreferrer'; link.textContent = 'Get track ↗';
+                row.append(title, source, len, lic, link);
+                list.appendChild(row);
+            });
+        }
+
+        function toggleClassicalLibrary() {
+            const sec = document.getElementById('classicalSection');
+            const showing = sec.style.display !== 'none';
+            if (showing) { sec.style.display = 'none'; }
+            else { if (!document.getElementById('classicalList').children.length) renderClassicalLibrary(); sec.style.display = 'block'; }
+        }
+
+        document.getElementById('browseClassicalBtn').addEventListener('click', toggleClassicalLibrary);
 
         // Initialize
         initKnobs();
