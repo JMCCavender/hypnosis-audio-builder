@@ -2052,6 +2052,7 @@
             panel.dataset.mode = 'idle';
             panel.style.display = 'none';
             document.getElementById('recordBtn').classList.remove('armed');
+            document.getElementById('ledDisplay').textContent = isPlaying ? 'PLAYING' : (musicBuffer && voiceBuffer ? 'READY' : 'LOAD FILES');
         }
 
         async function decodeTakeToBuffer() {
