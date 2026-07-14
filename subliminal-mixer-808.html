@@ -847,6 +847,19 @@
             background: #fbbf24;
             box-shadow: 0 0 8px #fbbf24;
         }
+        .record-btn { background:#7a1f1f; }
+        .record-btn.armed { background:#c0392b; }
+        .recorder-panel { margin-top:8px; padding:8px; border:1px solid #333; border-radius:6px; background:#141414; }
+        .rec-status-row, .rec-preview-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        .rec-dot { width:10px; height:10px; border-radius:50%; background:#c0392b; animation:recpulse 1s infinite; }
+        @keyframes recpulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+        .rec-timer { font-variant-numeric:tabular-nums; min-width:44px; }
+        .rec-meter { flex:1; height:8px; background:#000; border-radius:4px; overflow:hidden; min-width:80px; }
+        .rec-meter-fill { height:100%; width:0%; background:linear-gradient(90deg,#2ecc71,#f1c40f,#e74c3c); transition:width .05s linear; }
+        .rec-preview-row { margin-top:8px; }
+        .take-preview { width:100%; }
+        .file-btn.ghost { background:transparent; border:1px solid #444; }
+        .rec-error { margin-top:6px; color:#ef4444; font-size:12px; }
     </style>
 </head>
 <body>
@@ -902,6 +915,25 @@
                     <input type="file" id="voiceInput" class="file-input" accept="audio/*" multiple>
                     <button class="file-btn" id="voiceBtn">Load Vocals</button>
                     <span class="file-name empty" id="voiceName">No files selected</span>
+                    <button class="file-btn record-btn" id="recordBtn">● Record</button>
+                </div>
+                <div class="recorder-panel" id="recorderPanel" data-mode="idle" style="display:none">
+                    <div class="rec-status-row">
+                        <span class="rec-dot"></span>
+                        <span class="rec-timer" id="recTimer">0:00</span>
+                        <div class="rec-meter"><div class="rec-meter-fill" id="recMeterFill" style="width:0%"></div></div>
+                        <button class="rec-stop-btn" id="recStopBtn">■ Stop</button>
+                    </div>
+                    <div class="rec-preview-row" id="recPreviewRow" style="display:none">
+                        <audio class="take-preview" id="takePreview" controls></audio>
+                        <div class="rec-preview-actions">
+                            <button class="file-btn" id="useTakeBtn">Use this take</button>
+                            <button class="file-btn" id="reRecordBtn">Re-record</button>
+                            <button class="file-btn" id="downloadTakeBtn">⤓ Download take</button>
+                            <button class="file-btn ghost" id="discardTakeBtn">Discard</button>
+                        </div>
+                    </div>
+                    <div class="rec-error" id="recError" style="display:none"></div>
                 </div>
             </div>
         </div>
@@ -1878,6 +1910,106 @@
             }
         }
 
+        // ===== VOCAL RECORDER =====
+        const recorderState = { mediaRecorder:null, stream:null, chunks:[], takeBlob:null, timerId:null, analyser:null, rafId:null, startMs:0 };
+
+        function showRecError(msg) {
+            const el = document.getElementById('recError');
+            el.textContent = msg; el.style.display = 'block';
+        }
+
+        function drawMeter() {
+            if (!recorderState.analyser) return;
+            const buf = new Uint8Array(recorderState.analyser.fftSize);
+            recorderState.analyser.getByteTimeDomainData(buf);
+            let peak = 0;
+            for (let i=0;i<buf.length;i++){ const v = Math.abs(buf[i]-128)/128; if (v>peak) peak=v; }
+            document.getElementById('recMeterFill').style.width = Math.min(100, peak*140) + '%';
+            recorderState.rafId = requestAnimationFrame(drawMeter);
+        }
+
+        function tickTimer() {
+            const secs = Math.floor((performance.now() - recorderState.startMs)/1000);
+            document.getElementById('recTimer').textContent = Math.floor(secs/60) + ':' + String(secs%60).padStart(2,'0');
+        }
+
+        async function startRecording() {
+            if (!audioCtx) initAudio();
+            document.getElementById('recError').style.display = 'none';
+            let stream;
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+            } catch (err) {
+                showRecError('Microphone access needed to record (' + err.name + ').');
+                return;
+            }
+            recorderState.stream = stream;
+            recorderState.chunks = [];
+            recorderState.takeBlob = null;
+            const mr = new MediaRecorder(stream);
+            recorderState.mediaRecorder = mr;
+            mr.ondataavailable = (e) => { if (e.data && e.data.size) recorderState.chunks.push(e.data); };
+            mr.onstop = onRecordingStopped;
+            mr.start();
+
+            // level meter
+            const src = audioCtx.createMediaStreamSource(stream);
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 512;
+            src.connect(analyser);
+            recorderState.analyser = analyser;
+            drawMeter();
+
+            // timer + UI
+            recorderState.startMs = performance.now();
+            document.getElementById('recTimer').textContent = '0:00';
+            recorderState.timerId = setInterval(tickTimer, 250);
+
+            const panel = document.getElementById('recorderPanel');
+            panel.style.display = 'block';
+            panel.dataset.mode = 'recording';
+            document.getElementById('recPreviewRow').style.display = 'none';
+            document.getElementById('recordBtn').classList.add('armed');
+            document.getElementById('ledDisplay').textContent = 'RECORDING';
+        }
+
+        function stopRecording() {
+            if (recorderState.mediaRecorder && recorderState.mediaRecorder.state !== 'inactive') {
+                recorderState.mediaRecorder.stop();
+            }
+        }
+
+        function onRecordingStopped() {
+            // stop meter + timer
+            if (recorderState.rafId) cancelAnimationFrame(recorderState.rafId);
+            if (recorderState.timerId) clearInterval(recorderState.timerId);
+            recorderState.rafId = null; recorderState.timerId = null;
+            if (recorderState.stream) recorderState.stream.getTracks().forEach(t => t.stop());
+            document.getElementById('recMeterFill').style.width = '0%';
+            document.getElementById('recordBtn').classList.remove('armed');
+
+            recorderState.takeBlob = new Blob(recorderState.chunks, { type: recorderState.chunks[0] ? recorderState.chunks[0].type : 'audio/webm' });
+            const url = URL.createObjectURL(recorderState.takeBlob);
+            const audio = document.getElementById('takePreview');
+            audio.src = url;
+
+            document.getElementById('recorderPanel').dataset.mode = 'preview';
+            document.getElementById('recPreviewRow').style.display = 'block';
+            document.getElementById('ledDisplay').textContent = 'PREVIEW TAKE';
+        }
+
+        function resetRecorder() {
+            if (recorderState.rafId) cancelAnimationFrame(recorderState.rafId);
+            if (recorderState.timerId) clearInterval(recorderState.timerId);
+            if (recorderState.stream) recorderState.stream.getTracks().forEach(t => t.stop());
+            recorderState.mediaRecorder = null; recorderState.stream = null; recorderState.chunks = [];
+            recorderState.takeBlob = null; recorderState.analyser = null; recorderState.rafId = null; recorderState.timerId = null;
+            const panel = document.getElementById('recorderPanel');
+            panel.dataset.mode = 'idle';
+            panel.style.display = 'none';
+            document.getElementById('recordBtn').classList.remove('armed');
+        }
+
         // ===== EVENT LISTENERS =====
         document.getElementById('playBtn').addEventListener('click', togglePlay);
         document.getElementById('exportBtn').addEventListener('click', exportAudio);
@@ -1897,6 +2029,15 @@
         document.getElementById('voiceInput').addEventListener('change', (e) => {
             if (e.target.files[0]) loadAudioFile(e.target.files[0], 'voice');
         });
+
+        document.getElementById('recordBtn').addEventListener('click', () => {
+            const panel = document.getElementById('recorderPanel');
+            if (panel.dataset.mode === 'recording') { stopRecording(); }
+            else { startRecording(); }
+        });
+        document.getElementById('recStopBtn').addEventListener('click', stopRecording);
+        document.getElementById('reRecordBtn').addEventListener('click', () => { resetRecorder(); startRecording(); });
+        document.getElementById('discardTakeBtn').addEventListener('click', resetRecorder);
 
         document.querySelectorAll('.mute-btn').forEach(btn => {
             btn.addEventListener('click', () => {
