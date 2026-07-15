@@ -863,6 +863,8 @@
         .rec-stop-btn { background:#7a1f1f; color:inherit; }
         .recorder-panel { margin-top:8px; padding:8px; border:1px solid #333; border-radius:6px; background:#141414; }
         .rec-status-row, .rec-preview-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+        /* Hide the live recording status row (timer + Stop) once a take is captured and we're previewing it. */
+        .recorder-panel[data-mode="preview"] .rec-status-row { display:none; }
         .rec-dot { width:10px; height:10px; border-radius:50%; background:#c0392b; animation:recpulse 1s infinite; }
         @keyframes recpulse { 0%,100%{opacity:1;} 50%{opacity:.3;} }
         .rec-timer { font-variant-numeric:tabular-nums; min-width:44px; }
