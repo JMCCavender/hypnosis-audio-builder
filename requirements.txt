@@ -5,6 +5,10 @@
 pydub>=0.25.1        # Audio manipulation and mixing
 numpy>=1.24.0        # Numerical operations for sine wave synthesis
 
+# pydub imports the stdlib `audioop` module, which was removed from Python in
+# 3.13. This backport restores it so pydub works on 3.13+ (no-op on older Python).
+audioop-lts; python_version >= "3.13"
+
 # Configuration and CLI
 pyyaml>=6.0          # YAML configuration file support
 
