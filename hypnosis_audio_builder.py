@@ -14,6 +14,7 @@ License: MIT
 
 import argparse
 import logging
+import shutil
 import sys
 import json
 import webbrowser
@@ -28,6 +29,24 @@ from src.audio_builder import (
     ScriptValidator,
     create_test_voice
 )
+
+
+FFMPEG_INSTALL_HELP = (
+    "ffmpeg was not found on your PATH. It is required for MP3/FLAC export and\n"
+    "for loading compressed audio inputs (MP3/M4A/AAC/OGG).\n"
+    "\n"
+    "Install it, then re-run this command:\n"
+    "  macOS:    brew install ffmpeg\n"
+    "  Ubuntu:   sudo apt install ffmpeg\n"
+    "  Windows:  download from https://ffmpeg.org/download.html (add it to PATH)\n"
+    "\n"
+    "Tip: WAV output from WAV inputs (--output-format wav) works without ffmpeg."
+)
+
+
+def ffmpeg_available() -> bool:
+    """Return True if ffmpeg (or the avconv fallback) is on PATH."""
+    return shutil.which("ffmpeg") is not None or shutil.which("avconv") is not None
 
 
 def setup_logging(verbose: bool = False, debug: bool = False):
@@ -580,7 +599,17 @@ def main():
         print("Error: --voice, --batch, or --album is required (or use --test for testing)")
         print("Use --help for usage information")
         return 1
-    
+
+    # Ensure ffmpeg is available before building, so a missing dependency yields a
+    # clear, actionable message instead of a raw pydub/audioop stack trace.
+    # --test always writes MP3; otherwise anything but WAV output needs ffmpeg.
+    if not ffmpeg_available():
+        needs_ffmpeg = args.test or args.output_format != "wav"
+        if needs_ffmpeg:
+            print(f"Error: {FFMPEG_INSTALL_HELP}")
+            return 1
+        print(f"Warning: {FFMPEG_INSTALL_HELP}")
+
     # Get preset for this session type
     preset = HypnosisAudioBuilder.SESSION_PRESETS.get(
         args.session, 
